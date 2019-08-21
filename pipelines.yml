@@ -1,9 +1,10 @@
 apiVersion: v1.1
 resources:
-  - name: danimtb/robotapp
+  - name: robotapp_repo
     type: GitRepo
-    gitProvider: GitHub
-    path: robotapp/
+    configuration:
+      gitProvider: GitHub
+      path: danimtb/robotapp
 pipelines:
   - name: robotapp_ci
     configuration:
