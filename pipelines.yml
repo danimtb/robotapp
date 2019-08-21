@@ -6,12 +6,12 @@ resources:
     path: robotapp/
 pipelines:
   - name: robotapp_ci
+    configuration:
+      runtime:
+        type: default_pool
     steps:
       - name: robotapp_ci1
         type: Bash
-        configuration:
-          runtime:
-          type: default_pool
         execution:
           onStart:
             - echo "Preparing for work..."
