@@ -12,6 +12,9 @@ pipelines:
         type: host
     steps:
       - name: robotapp_ci1
+        inputResources:
+          - name: robotapp_repo
+            trigger: true
         type: Bash
         execution:
           onStart:
