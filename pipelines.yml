@@ -11,7 +11,11 @@ pipelines:
   - name: robotapp_ci
     configuration:
       runtime:
-        type: host
+        type: image
+        image:
+          custom:
+            name: conanio/gcc72
+            tag: latest
     steps:
       - name: robotapp_ci1
         type: Bash
