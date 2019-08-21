@@ -1,7 +1,7 @@
 apiVersion: v1.1
 resources:
   - name: danimtb/robotapp
-    type: gitRepo
+    type: GitRepo
     gitProvider: GitHub
     path: robotapp/
 pipelines:
@@ -10,7 +10,8 @@ pipelines:
       - name: robotapp_ci1
         type: Bash
         configuration:
-          affinityGroup: bldGroup
+          runtime:
+          type: default_pool
         execution:
           onStart:
             - echo "Preparing for work..."
