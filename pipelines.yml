@@ -8,7 +8,8 @@ pipelines:
   - name: robotapp_ci
     configuration:
       runtime:
-        type: default_pool
+        type: image
+        image: default_pool
     steps:
       - name: robotapp_ci1
         type: Bash
