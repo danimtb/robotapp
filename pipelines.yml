@@ -9,10 +9,7 @@ pipelines:
   - name: robotapp_ci
     configuration:
       runtime:
-        type: image
-        image:
-          custom:
-            name: default_pool
+        type: host
     steps:
       - name: robotapp_ci1
         type: Bash
