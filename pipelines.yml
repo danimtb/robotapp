@@ -1,0 +1,28 @@
+apiVersion: v1.1
+resources:
+  - name: danimtb/robotapp
+    type: gitRepo
+    gitProvider: GitHub_danimtb
+    path: robotapp/
+pipelines:
+  - name: robotapp_ci
+    steps:
+      - name: robotapp_ci1
+        type: Bash
+        inputResources:
+          - name: danimtb/robotapp
+            trigger: true
+        configuration:
+          affinityGroup: bldGroup
+        execution:
+          onStart:
+            - echo "Preparing for work..."
+          onExecute:
+            - echo "executing task command 1"
+            - echo "executing task command 2"
+          onSuccess:
+            - echo "Job well done!"
+          onFailure:
+            - echo "uh oh, something went wrong"
+          onComplete: #always
+            - echo "Cleaning up some stuff"
