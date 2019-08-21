@@ -5,6 +5,8 @@ resources:
     configuration:
       gitProvider: GitHub_danimtb
       path: danimtb/robotapp
+      branches:
+        include: master
 pipelines:
   - name: robotapp_ci
     configuration:
