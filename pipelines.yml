@@ -3,14 +3,16 @@ resources:
   - name: robotapp_repo
     type: GitRepo
     configuration:
-      gitProvider: GitHub
+      gitProvider: GitHub_danimtb
       path: danimtb/robotapp
 pipelines:
   - name: robotapp_ci
     configuration:
       runtime:
         type: image
-        image: default_pool
+        image:
+          custom:
+            name: default_pool
     steps:
       - name: robotapp_ci1
         type: Bash
