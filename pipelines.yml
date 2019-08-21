@@ -2,16 +2,13 @@ apiVersion: v1.1
 resources:
   - name: danimtb/robotapp
     type: gitRepo
-    gitProvider: GitHub_danimtb
+    gitProvider: GitHub
     path: robotapp/
 pipelines:
   - name: robotapp_ci
     steps:
       - name: robotapp_ci1
         type: Bash
-        inputResources:
-          - name: danimtb/robotapp
-            trigger: true
         configuration:
           affinityGroup: bldGroup
         execution:
