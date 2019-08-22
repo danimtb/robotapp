@@ -17,6 +17,7 @@ pipelines:
             tag: latest
     steps:
       - name: Step1
+        type: bash
         execution:
           onExecute:
             - echo "I'm running in container!!!"
