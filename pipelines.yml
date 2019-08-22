@@ -15,10 +15,13 @@ pipelines:
           custom:
             name: conanio/gcc72
             tag: latest
-      inputResources:
-        - name: robotapp_repo
-          trigger: true
     steps:
+      - name: Trigger
+        type: Bash
+        configuration:
+          inputResources:
+            - name: robotapp_repo
+              trigger: true
       - name: Step1
         type: Bash
         execution:
