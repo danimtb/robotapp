@@ -4,7 +4,7 @@ resources:
     type: GitRepo
     configuration:
       gitProvider: GitHub_danimtb
-      path: danimtb/robotapp
+      path: .
       branches:
         include: master
 pipelines:
@@ -17,13 +17,7 @@ pipelines:
             name: conanio/gcc72
             tag: latest
     steps:
-      - name: robotapp_ci1
-        type: Bash
-        configuration:
-          inputResources:
-            - name: robotapp_repo
-              trigger: true
+      - name: Step1
         execution:
           onExecute:
-            - echo "executing task command 1"
-            - echo "executing task command 2"
+            - echo "I'm running in container!!!"
