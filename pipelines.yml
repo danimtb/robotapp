@@ -22,6 +22,9 @@ pipelines:
           inputResources:
             - name: robotapp_repo
               trigger: true
+        execution:
+          onExecute:
+            - echo "Triggered!!"
       - name: Step1
         type: Bash
         execution:
