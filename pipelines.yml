@@ -24,7 +24,7 @@ pipelines:
               trigger: true
         execution:
           onExecute:
-            - echo "Triggered!!"
+            - echo "Triggered!!!"
       - name: Step1
         type: Bash
         configuration:
