@@ -7,7 +7,7 @@ class BlinkAppConan(ConanFile):
     license = "MIT"
     description = "Robot application"
     settings = "os", "compiler", "build_type", "arch"
-    exports_sources = "CMakeLists.txt", "main.cpp", "LICENSE"
+    exports_sources = "CMakeLists.txt", "app*", "wrapper*", "LICENSE"
     generators = "cmake"
     requires = "gopigo/2.4.1@conan/stable"
 
