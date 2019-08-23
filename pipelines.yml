@@ -27,6 +27,9 @@ pipelines:
             - echo "Triggered!!"
       - name: Step1
         type: Bash
+        configuration:
+          inputSteps:
+            - name: Trigger
         execution:
           onExecute:
             - echo "I'm running in container!!!"
