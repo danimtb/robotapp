@@ -20,6 +20,7 @@ pipelines:
            custom:
              name: conanio/gcc6-armv7hf
              tag: latest
+             options: "-e HOME=/root -u root"
              registry: czoido_docker
     steps:
     - name: step_1
