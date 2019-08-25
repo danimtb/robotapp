@@ -10,7 +10,7 @@ class BlinkAppConan(ConanFile):
     exports_sources = "CMakeLists.txt", "app*", "wrapper*", "LICENSE"
     generators = "cmake"
     requires = "gopigo/2.4.2@conan/stable"
-    default_options = {"gopigo:shared": True}
+    default_options = "gopigo:shared=True"
 
     def build(self):
         cmake = CMake(self)
