@@ -13,7 +13,7 @@ pipelines:
       type: Bash
       configuration:
         inputResources:
-          - name: app
+          - name: robotapp_github
       execution:
         onExecute:
           - printenv
