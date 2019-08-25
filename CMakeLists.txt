@@ -6,5 +6,4 @@ conan_basic_setup()
 
 message("LIBS: ${CONAN_LIBS}")
 
-add_subdirectory(wrapper)
 add_subdirectory(app)
