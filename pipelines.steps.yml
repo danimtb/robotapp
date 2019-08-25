@@ -1,5 +1,5 @@
 resources:
-  - name: robotapp_repo
+  - name: robotapp_github
     type: GitRepo
     configuration:
       gitProvider: czoido_github
@@ -20,7 +20,7 @@ pipelines:
         type: Bash
         configuration:
           inputResources:
-            - name: robotapp_repo
+            - name: robotapp_github
               trigger: true
         execution:
           onExecute:
