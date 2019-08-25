@@ -9,7 +9,7 @@ class BlinkAppConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     exports_sources = "CMakeLists.txt", "app*", "wrapper*", "LICENSE"
     generators = "cmake"
-    requires = "gopigo/2.4.1@conan/stable"
+    requires = "gopigo/2.4.2@conan/stable"
 
     def build(self):
         cmake = CMake(self)
