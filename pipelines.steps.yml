@@ -23,6 +23,7 @@ pipelines:
       execution:
         onExecute:
           - printenv
+          - echo $res_robotapp_github_commitSha
  
     - name: step_2
       type: Bash
