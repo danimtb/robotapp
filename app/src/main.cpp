@@ -26,6 +26,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/gpl-3.0.txt>.
 
 // ####################################################################################
+
+
 #include <stdlib.h>
 #include <stdio.h>
 #include "gopigo-wrapper.h"
@@ -37,6 +39,7 @@ int main(void)
     // Buffer for data being read/ written on the i2c bus
     if(init()==-1)
         exit(1);
+
     led_on(1);
 
     while(1)
