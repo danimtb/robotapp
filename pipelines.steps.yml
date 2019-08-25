@@ -6,6 +6,7 @@ pipelines:
       configuration:
         inputResources:
           - name: robotapp_github
+          trigger: true
       execution:
         onExecute:
           - printenv
