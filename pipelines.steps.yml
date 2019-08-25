@@ -9,7 +9,6 @@ resources:
       buildOn:
          commit: true
          pullRequestCreate: true
-         pullRequestClose: true
          releaseCreate: true
          tagCreate: true
 pipelines:
