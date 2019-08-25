@@ -19,7 +19,7 @@ pipelines:
         image:
            custom:
              name: conanio/gcc6-armv7hf
-             tag: master
+             tag: latest
              registry: czoido_docker
     steps:
     - name: step_1
