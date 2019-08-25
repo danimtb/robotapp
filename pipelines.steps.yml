@@ -42,7 +42,6 @@ pipelines:
         inputSteps:
           - name: step_2
           - name: step_3
-        runtime:
       execution:
         onExecute:
           - printenv
