@@ -1,11 +1,3 @@
-resources:
-  - name: robotapp_github
-    type: GitRepo
-    configuration:
-      gitProvider: czoido_github
-      path: czoido/robotapp
-      branches:
-        include: master
 pipelines:
   - name: barebones_pipeline
     steps:
