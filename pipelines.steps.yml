@@ -11,20 +11,16 @@ resources:
          pullRequestCreate: true
          releaseCreate: true
          tagCreate: true
-  - name: conan_docker_image
-    type: image
-    configuration:
-      registry: czoido_docker
-      imageName: conanio/gcc6-armv7hf
 pipelines:
   - name: barebones_pipeline
     configuration:
-    runtime:
-      type: image
-      image:
-        custom:
-          name: conan_docker_image
-          tag: latest
+      runtime:       
+        type: image
+        image:
+           custom:
+             name: conanio/gcc6-armv7hf
+             tag: master
+             registry: czoido_docker
     steps:
     - name: step_1
       type: Bash
