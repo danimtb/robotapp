@@ -6,6 +6,12 @@ resources:
       path: czoido/robotapp
       branches:
         include: master
+      buildOn:
+         commit: true
+         pullRequestCreate: true
+         pullRequestClose: true
+         releaseCreate: true
+         tagCreate: true
 pipelines:
   - name: barebones_pipeline
     steps:
