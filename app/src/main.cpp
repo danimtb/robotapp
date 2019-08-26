@@ -1,41 +1,39 @@
-#include <GoPiGo3.h>   // for GoPiGo3
-#include <stdio.h>     // for printf
-#include <unistd.h>    // for usleep
-#include <signal.h>    // for catching exit signals
+#include <GoPiGo3.h> // for GoPiGo3
+#include <stdio.h>   // for printf
+#include <unistd.h>  // for usleep
+#include <signal.h>  // for catching exit signals
+#include <iostream>
+#include "line_sensor.hpp"
 
 GoPiGo3 GPG;
 
 void exit_signal_handler(int signo);
 
-int main(){
-  signal(SIGINT, exit_signal_handler); // register the exit function for Ctrl+C
-
-  GPG.detect(); // Make sure that the GoPiGo3 is communicating and that the firmware is compatible with the drivers.
-
-  // Reset the encoders
+int main()
+{
+  signal(SIGINT, exit_signal_handler);
+  GPG.detect();
   GPG.offset_motor_encoder(MOTOR_LEFT, GPG.get_motor_encoder(MOTOR_LEFT));
   GPG.offset_motor_encoder(MOTOR_RIGHT, GPG.get_motor_encoder(MOTOR_RIGHT));
-
-  while(true){
-    // Read the encoders
-    int32_t EncoderLeft = GPG.get_motor_encoder(MOTOR_LEFT);
-    int32_t EncoderRight = GPG.get_motor_encoder(MOTOR_RIGHT);
-
-    // Use the encoder value from the left motor to control the position of the right motor
-    GPG.set_motor_position(MOTOR_RIGHT, EncoderLeft);
-
-    // Display the encoder values
-    printf("Encoder Left: %6d  Right: %6d\n", EncoderLeft, EncoderRight);
-
-    // Delay for 20ms
+  LineSensor line_sensor("/dev/i2c-1");
+  while (true)
+  {
+    int result = line_sensor.readSensor();
+    for (int i=4;i>=0;i--)
+      std::cout << line_sensor.getIntensity(i);
+    std::cout << std::endl;
+    //int32_t EncoderLeft = GPG.get_motor_encoder(MOTOR_LEFT);
+    //int32_t EncoderRight = GPG.get_motor_encoder(MOTOR_RIGHT);
+    //printf("Encoder Left: %6d  Right: %6d\n", EncoderLeft, EncoderRight);
     usleep(20000);
   }
 }
 
-// Signal handler that will be called when Ctrl+C is pressed to stop the program
-void exit_signal_handler(int signo){
-  if(signo == SIGINT){
-    GPG.reset_all();    // Reset everything so there are no run-away motors
+void exit_signal_handler(int signo)
+{
+  if (signo == SIGINT)
+  {
+    GPG.reset_all();
     exit(-2);
   }
 }
