@@ -15,8 +15,8 @@
 
 #define WRITE_BUF_SIZE       5
 #define READ_BUF_SIZE        32
-#define line_read_cmd        3    //analogRead() command format header
-#define address              0x06 //I2C Address of Arduino
+#define line_read_cmd        3
+#define address              0x06
 
 class LineSensor
 {
