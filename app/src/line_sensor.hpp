@@ -21,7 +21,7 @@
 class LineSensor
 {
 public:
-	LineSensor() = default;
+	LineSensor() = delete;
 	LineSensor(std::string device);
 	~LineSensor () = default;
 	int readSensor();
