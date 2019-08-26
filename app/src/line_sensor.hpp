@@ -16,7 +16,7 @@
 #define WRITE_BUF_SIZE       5
 #define READ_BUF_SIZE        32
 #define line_read_cmd        3
-#define address              0x06
+#define i2c_address              0x06
 
 class LineSensor
 {

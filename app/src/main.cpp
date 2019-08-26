@@ -3,11 +3,12 @@
 #include <unistd.h>  // for usleep
 #include <signal.h>  // for catching exit signals
 #include <iostream>
-#include "line_sensor.hpp"
-
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
+
+#include "line_sensor.hpp"
+#include "color_sensor.hpp"
 
 #define PORT 8080
 
@@ -28,7 +29,7 @@ int main()
     perror("socket failed");
     exit(EXIT_FAILURE);
   }
-  
+
   if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT,
                  &opt, sizeof(opt)))
   {
@@ -50,19 +51,19 @@ int main()
     perror("listen");
     exit(EXIT_FAILURE);
   }
-
-  signal(SIGINT, exit_signal_handler);
-  GPG.detect();
-  GPG.offset_motor_encoder(MOTOR_LEFT, GPG.get_motor_encoder(MOTOR_LEFT));
-  GPG.offset_motor_encoder(MOTOR_RIGHT, GPG.get_motor_encoder(MOTOR_RIGHT));
-  LineSensor line_sensor("/dev/i2c-1");
-  std::cout << "car inited" << std::endl;
   if ((new_socket = accept(server_fd, (struct sockaddr *)&addr,
                            (socklen_t *)&addrlen)) < 0)
   {
     perror("accept");
     exit(EXIT_FAILURE);
   }
+  signal(SIGINT, exit_signal_handler);
+  GPG.detect();
+  GPG.offset_motor_encoder(MOTOR_LEFT, GPG.get_motor_encoder(MOTOR_LEFT));
+  GPG.offset_motor_encoder(MOTOR_RIGHT, GPG.get_motor_encoder(MOTOR_RIGHT));
+  //LineSensor line_sensor("/dev/i2c-1");
+  ColorSensor color_sensor("/dev/i2c-1");
+
   while (true)
   {
     valread = read(new_socket, buffer, 1024);
@@ -96,10 +97,12 @@ int main()
       std::cout << "stop" << std::endl;
       break;
     }
-    int result = line_sensor.readSensor();
-      for (int i = 4; i >= 0; i--)
-        std::cout << line_sensor.getIntensity(i);
-    std::cout << std::endl;
+    // int result = line_sensor.readSensor();
+    // for (int i = 4; i >= 0; i--)
+    //  std::cout << line_sensor.getIntensity(i);
+    //std::cout << std::endl;
+
+    color_sensor.readSensor();
     usleep(2000);
   }
 }
@@ -112,4 +115,3 @@ void exit_signal_handler(int signo)
     exit(-2);
   }
 }
-

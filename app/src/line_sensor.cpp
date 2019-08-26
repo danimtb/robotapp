@@ -7,7 +7,7 @@ LineSensor::LineSensor(std::string device)
     {
         printf("Failed to open i2c port\n");
     }
-    if (ioctl(fd, I2C_SLAVE, address) < 0)
+    if (ioctl(fd, I2C_SLAVE, i2c_address) < 0)
     {
         printf("Unable to get bus access to talk to slave\n");
     }
