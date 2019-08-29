@@ -17,4 +17,13 @@ pipelines:
           onExecute:
             - printenv
             - echo $res_robotapp_github_commitSha
+      - name: second_step_demo
+        type: Bash
+        configuration:
+          inputResources:
+            - name: first_step_demo
+        execution:
+          onExecute:
+            - printenv
+            - echo $res_robotapp_github_commitSha          
 
