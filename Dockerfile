@@ -1,7 +1,6 @@
 FROM conanio:gcc6-armv7hf
 
-RUN mkdir /temp
-ADD . /temp/
-WORKDIR /temp
-RUN printenv
-RUN gcc --version
+RUN pip install conan --upgrade
+RUN pip install conan_package_tools
+RUN conan user
+RUN python build.py
