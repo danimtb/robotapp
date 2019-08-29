@@ -6,7 +6,7 @@ resources:
       gitProvider: czoido_github
 
 pipelines:
-  - name: demo_pipeline
+  - name: robotapp_pipeline
     steps:
       - name: first_step_demo
         type: DockerBuild
