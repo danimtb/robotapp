@@ -9,14 +9,16 @@ pipelines:
   - name: demo_pipeline
     steps:
       - name: first_step_demo
-        type: Bash
+        type: DockerBuild
         configuration:
+          dockerFileLocation: .
+          dockerFileName: Dockerfile
+          dockerImageName: conan_test_image
+          dockerImageTag: $run_number
           inputResources:
             - name: robotapp_github
-        execution:
-          onExecute:
-            - printenv
-            - echo $res_robotapp_github_commitSha
+          integrations:
+            - name: czoido_docker
 
       - name: second_step_demo
         type: Bash
