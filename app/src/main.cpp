@@ -83,11 +83,23 @@ int main()
       for (int i=0;i<5;i++) { 
           sensor += ((i-2)*(1024-line_sensor.getVal(i)))/1024.0;        
       }
+      
       double out=pid.getOutput(sensor,setpoint);
       total_power = static_cast<int>(100.0 * left_y);
       double control_command = (-out/100.0)/2.0+0.5;
+      if (line_sensor.getVal(0)<200 &&
+          line_sensor.getVal(1)<200 &&
+          line_sensor.getVal(2)<200 &&
+          line_sensor.getVal(3)<200 &&
+          line_sensor.getVal(4)<200) {
+            control_command = (out/100.0)/2.0+0.5;
+          }
+      std::cout << "sensor:" << sensor << " command:" << control_command;
 
-      std::cout << "sensor:" << sensor << " command:" << control_command << std::endl;
+      for (int i=0;i<5;i++) {
+        std::cout <<  " " << line_sensor.getVal(i);   
+      } 
+      std::cout << std::endl;
 
       if (control_command < 0.5)
         factor_left = 2.0 * control_command;
