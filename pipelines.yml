@@ -1,0 +1,20 @@
+resources:
+  - name: robotapp_github
+    type: GitRepo
+    configuration:
+      path: czoido/robotapp
+      gitProvider: czoido_github
+
+pipelines:
+  - name: demo_pipeline
+    steps:
+      - name: first_step_demo
+        type: Bash
+        configuration:
+          inputResources:
+            - name: robotapp_github
+        execution:
+          onExecute:
+            - printenv
+            - echo $res_robotapp_github_commitSha
+
