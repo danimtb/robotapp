@@ -5,5 +5,3 @@ ADD . /temp/
 WORKDIR /temp
 RUN printenv
 RUN gcc --version
-
-EXPOSE 3000
