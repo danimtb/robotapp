@@ -21,13 +21,11 @@ if __name__ == "__main__":
     reference = "{0}/{1}".format(name, version)
     conan_username = "conan"
     conan_channel = "stable"
-    login_username = "czoido"
-    upload_remote = "https://api.bintray.com/conan/czoido/conan-packages"
+    upload_remote = "https://art-yalla.jfrog-lab.com/artifactory/api/conan/conan-repo"
 
     builder = ConanMultiPackager(
         username=conan_username,
         channel=conan_channel,
-        login_username=login_username,
         reference=reference,
         upload=upload_remote,
         remotes=upload_remote
