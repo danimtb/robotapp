@@ -24,7 +24,8 @@ int main()
   server.init();
 
   LineSensor line_sensor("/dev/i2c-1");
-  //ColorSensor color_sensor("/dev/i2c-1");
+  ColorSensor color_sensor("/dev/i2c-1",TCS34725_INTEGRATIONTIME_50MS,TCS34725_GAIN_16X);
+  color_sensor.begin();
 
   GPG.detect();
   GPG.offset_motor_encoder(MOTOR_LEFT, GPG.get_motor_encoder(MOTOR_LEFT));
@@ -112,28 +113,16 @@ int main()
     }
     GPG.set_motor_power(MOTOR_LEFT, motor_left);
     GPG.set_motor_power(MOTOR_RIGHT, motor_right);
+    uint16_t r, g, b, c, colorTemp, lux;
+    color_sensor.setInterrupt(true);
+    usleep(110000);
+    color_sensor.getRawData(&r, &g, &b, &c);
+    std::cout << r << " " << g << " " << b << " " << c << std::endl;
     usleep(10000);
   }
   //fout.close(); //close file
   //assert(!fout.fail());
 }
-/*
-  int result = line_sensor.readSensor();
-  GPG.set_motor_power(MOTOR_LEFT, motor_left);
-  GPG.set_motor_power(MOTOR_RIGHT, motor_right);
-  fout << line_sensor.getIntensity(4) << ";"
-        << line_sensor.getIntensity(3) << ";"
-        << line_sensor.getIntensity(2) << ";"
-        << line_sensor.getIntensity(1) << ";"
-        << line_sensor.getIntensity(0) << ";"
-        << motor_left << ";"
-        << motor_right << ";" << std::endl;
-  // int result = line_sensor.readSensor();
-  // for (int i = 4; i >= 0; i--)
-  //  std::cout << line_sensor.getIntensity(i);
-  //std::cout << std::endl;
-  //color_sensor.readSensor();
-  */
 
 void exit_signal_handler(int signo)
 {
