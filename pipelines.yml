@@ -45,6 +45,8 @@ pipelines:
               custom:
                 name: czoido/pipelines-conanio-gcc8-armv7hf
                 tag: latest
+          inputResources:
+            - name: conan_robotapp_github2
           inputSteps:
             - name: configure_environment
           integrations:
