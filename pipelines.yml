@@ -27,12 +27,15 @@ pipelines:
           onExecute:
             - pip install conan --upgrade
             - conan user
-            - cd $res_conan_robotapp_github2_resourcePath
+            - conan remote remove conan-center
+            - conan remote add artifactory $int_artifactory_url
+            - conan user $int_artifactory_user --remote artifactory --password $int_artifactory_apikey
             - conan profile new default --detect
             - conan profile update settings.compiler.libcxx=libstdc++11 default
             - conan profile update settings.compiler.version=8 default
             - export CONAN_GCC_VERSIONS=8
             - conan profile show default
+            - conan remote add artifactory int_artifactory_url
             - add_run_files ~/.conan conan_user_home
       - name: create_app
         type: Bash
