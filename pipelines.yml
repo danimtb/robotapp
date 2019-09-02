@@ -29,7 +29,7 @@ pipelines:
             - pip install conan --upgrade
             - pip install conan_package_tools
             - conan user
-            - git clone https://github.com/czoido/robotapp.git
+            - ls -lah
             - cd robotapp
             - conan profile new default --detect
             - conan profile show default
