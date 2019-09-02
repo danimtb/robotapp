@@ -2,8 +2,8 @@ resources:
   - name: conan_robotapp_github2
     type: GitRepo
     configuration:
-      path: czoido/robotapp
-      gitProvider: czoido_github
+      path: danimtb/robotapp
+      gitProvider: danimtb_github
 
 pipelines:
   - name: robotapp2
