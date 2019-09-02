@@ -224,7 +224,7 @@ void ColorSensor::getRawData(uint16_t *r, uint16_t *g, uint16_t *b,
 	if (!_tcs34725Initialised)
 		begin();
 
-    color_sensor.setInterrupt(true);
+    setInterrupt(true);
 	char reg[1] = {0x94};
 	write(_file, reg, 1);
 	char data[8] = {0};
