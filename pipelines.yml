@@ -6,7 +6,7 @@ resources:
       gitProvider: czoido_github
 
 pipelines:
-  - name: robotapp
+  - name: robotapp2
     steps:
       - name: build_robotapp_gcc8
         type: Bash
