@@ -3,7 +3,7 @@ resources:
     type: GitRepo
     configuration:
       path: danimtb/robotapp
-      gitProvider: GitHub_danimtb
+      gitProvider: danimtb_github
 
 pipelines:
   - name: robotapp
