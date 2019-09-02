@@ -25,8 +25,6 @@ pipelines:
             - name: environment
         execution:
           onExecute:
-            - export CONAN_LOGIN_USERNAME=$int_environment_CONAN_LOGIN_USERNAME
-            - export CONAN_PASSWORD=$int_environment_CONAN_PASSWORD
             - pip install conan --upgrade
             - conan user
             - cd $res_conan_robotapp_github2_resourcePath
@@ -56,4 +54,24 @@ pipelines:
           onExecute:
             - cd $res_conan_robotapp_github2_resourcePath
             - conan profile show ./default
-            - conan create . --profile ./default
+            - conan create . user/channel --profile ./default
+      - name: upload_app
+        type: Bash
+        configuration:
+          affinityGroup: ci_group
+          runtime:
+            type: image
+            image:
+              custom:
+                name: czoido/pipelines-conanio-gcc8-armv7hf
+                tag: latest
+          inputSteps:
+            - name: create_app
+          integrations:
+            - name: czoido_docker
+            - name: environment
+        execution:
+          onExecute:
+            - export CONAN_LOGIN_USERNAME=$int_environment_CONAN_LOGIN_USERNAME
+            - export CONAN_PASSWORD=$int_environment_CONAN_PASSWORD
+            - conan upload robotapp/1.0@user/channel --all
