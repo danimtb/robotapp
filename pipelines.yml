@@ -23,6 +23,7 @@ pipelines:
           integrations:
             - name: czoido_docker
             - name: environment
+            - name: artifactory
         execution:
           onExecute:
             - pip install conan --upgrade
@@ -54,6 +55,7 @@ pipelines:
           integrations:
             - name: czoido_docker
             - name: environment
+            - name: artifactory
         execution:
           onExecute:
             - restore_run_files conan_user_home ~/.conan
