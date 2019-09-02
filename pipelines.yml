@@ -28,11 +28,11 @@ pipelines:
             - pip install conan --upgrade
             - conan user
             - cd $res_conan_robotapp_github2_resourcePath
-            - conan profile new ./default --detect
-            - conan profile update settings.compiler.libcxx=libstdc++11 ./default
-            - conan profile update settings.compiler.version=8 ./default
+            - conan profile new ~/default --detect
+            - conan profile update settings.compiler.libcxx=libstdc++11 ~/default
+            - conan profile update settings.compiler.version=8 ~/default
             - export CONAN_GCC_VERSIONS=8
-            - conan profile show ./default
+            - conan profile show ~/default
       - name: create_app
         type: Bash
         configuration:
@@ -53,8 +53,8 @@ pipelines:
         execution:
           onExecute:
             - cd $res_conan_robotapp_github2_resourcePath
-            - conan profile show ./default
-            - conan create . user/channel --profile ./default
+            - conan profile show ~/default
+            - conan create . user/channel --profile ~/default
       - name: upload_app
         type: Bash
         configuration:
