@@ -8,9 +8,10 @@ resources:
 pipelines:
   - name: robotapp2
     steps:
-      - name: build_robotapp_gcc8
+      - name: configure_environment
         type: Bash
         configuration:
+          affinityGroup: ci_group
           runtime:
             type: image
             image:
@@ -29,11 +30,27 @@ pipelines:
             - pip install conan --upgrade
             - pip install conan_package_tools
             - conan user
-            - ls $res_conan_robotapp_github2_resourcePath
-            - cd robotapp
             - conan profile new default --detect
             - conan profile show default
             - conan profile update settings.compiler.libcxx=libstdc++11 default
             - conan profile update settings.compiler.version=8 default
             - export CONAN_GCC_VERSIONS=8
-            - python build.py
+      - name: create_app
+        type: Bash
+        configuration:
+          affinityGroup: ci_group
+          runtime:
+            type: image
+            image:
+              custom:
+                name: czoido/pipelines-conanio-gcc8-armv7hf
+                tag: latest
+          inputResources:
+            - name: configure_environment
+          integrations:
+            - name: czoido_docker
+            - name: environment
+        execution:
+          onExecute:
+            - cd $res_conan_robotapp_github2_resourcePath
+            - conan create .
