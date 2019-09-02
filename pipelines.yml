@@ -1,9 +1,9 @@
 resources:
-  - name: robotapp_repo
+  - name: conan_robotapp_github
     type: GitRepo
     configuration:
-      path: danimtb/robotapp
-      gitProvider: danimtb_github
+      path: czoido/robotapp
+      gitProvider: czoido_github
 
 pipelines:
   - name: robotapp
@@ -18,7 +18,7 @@ pipelines:
                 name: czoido/pipelines-conanio-gcc8-armv7hf
                 tag: latest
           inputResources:
-            - name: robotapp_repo
+            - name: conan_robotapp_github
           integrations:
             - name: czoido_docker
             - name: environment
@@ -29,6 +29,7 @@ pipelines:
             - pip install conan --upgrade
             - pip install conan_package_tools
             - conan user
+            - git clone https://github.com/czoido/robotapp.git
             - cd robotapp
             - conan profile new default --detect
             - conan profile show default
