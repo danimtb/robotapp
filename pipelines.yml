@@ -45,7 +45,7 @@ pipelines:
               custom:
                 name: czoido/pipelines-conanio-gcc8-armv7hf
                 tag: latest
-          inputResources:
+          inputSteps:
             - name: configure_environment
           integrations:
             - name: czoido_docker
