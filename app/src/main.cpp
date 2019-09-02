@@ -114,8 +114,6 @@ int main()
     GPG.set_motor_power(MOTOR_LEFT, motor_left);
     GPG.set_motor_power(MOTOR_RIGHT, motor_right);
     uint16_t r, g, b, c, colorTemp, lux;
-    color_sensor.setInterrupt(true);
-    usleep(110000);
     color_sensor.getRawData(&r, &g, &b, &c);
     std::cout << r << " " << g << " " << b << " " << c << std::endl;
     usleep(10000);

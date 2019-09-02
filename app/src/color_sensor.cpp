@@ -65,22 +65,7 @@ uint16_t ColorSensor::read16(uint8_t reg)
 	return x;
 }
 
-/*!
- *  @brief  Enables the device
- */
-void ColorSensor::enable()
-{
-	write8(TCS34725_ENABLE, TCS34725_ENABLE_PON);
-	usleep(3000);
-	write8(TCS34725_ENABLE, TCS34725_ENABLE_PON | TCS34725_ENABLE_AEN);
-	//usleep(3000);
-	//write8(TCS34725_WTIME, TCS34725_WTIME_2_4MS);
-	/* Set a usleep for the integration time.
-    This is only necessary in the case where enabling and then
-    immediately trying to read values back. This is because setting
-    AEN triggers an automatic integration, so if a read RGBC is
-    performed too quickly, the data is not yet valid and all 0's are
-    returned */
+void ColorSensor::sleep() {
 	switch (_tcs34725IntegrationTime)
 	{
 	case TCS34725_INTEGRATIONTIME_2_4MS:
@@ -102,6 +87,25 @@ void ColorSensor::enable()
 		usleep(700000);
 		break;
 	}
+}
+
+/*!
+ *  @brief  Enables the device
+ */
+void ColorSensor::enable()
+{
+	write8(TCS34725_ENABLE, TCS34725_ENABLE_PON);
+	usleep(3000);
+	write8(TCS34725_ENABLE, TCS34725_ENABLE_PON | TCS34725_ENABLE_AEN);
+	//usleep(3000);
+	//write8(TCS34725_WTIME, TCS34725_WTIME_2_4MS);
+	/* Set a usleep for the integration time.
+    This is only necessary in the case where enabling and then
+    immediately trying to read values back. This is because setting
+    AEN triggers an automatic integration, so if a read RGBC is
+    performed too quickly, the data is not yet valid and all 0's are
+    returned */
+	sleep();
 }
 
 /*!
@@ -220,12 +224,7 @@ void ColorSensor::getRawData(uint16_t *r, uint16_t *g, uint16_t *b,
 	if (!_tcs34725Initialised)
 		begin();
 
-/*
-	*c = read16(TCS34725_CDATAL);
-	*r = read16(TCS34725_RDATAL);
-	*g = read16(TCS34725_GDATAL);
-	*b = read16(TCS34725_BDATAL);
-*/
+    color_sensor.setInterrupt(true);
 	char reg[1] = {0x94};
 	write(_file, reg, 1);
 	char data[8] = {0};
@@ -240,28 +239,7 @@ void ColorSensor::getRawData(uint16_t *r, uint16_t *g, uint16_t *b,
 		*g = (data[5] * 256 + data[4]);
 		*b = (data[7] * 256 + data[6]);
 	}
-	/* Set a usleep for the integration time */
-	switch (_tcs34725IntegrationTime)
-	{
-	case TCS34725_INTEGRATIONTIME_2_4MS:
-		usleep(3000);
-		break;
-	case TCS34725_INTEGRATIONTIME_24MS:
-		usleep(24000);
-		break;
-	case TCS34725_INTEGRATIONTIME_50MS:
-		usleep(50000);
-		break;
-	case TCS34725_INTEGRATIONTIME_101MS:
-		usleep(101000);
-		break;
-	case TCS34725_INTEGRATIONTIME_154MS:
-		usleep(154000);
-		break;
-	case TCS34725_INTEGRATIONTIME_700MS:
-		usleep(700000);
-		break;
-	}
+	sleep();
 }
 
 /*!

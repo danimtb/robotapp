@@ -161,7 +161,7 @@ public:
   void setIntLimits(uint16_t l, uint16_t h);
   void enable();
   void disable();
-
+  void sleep();
 private:
   std::string _device;
   int _file;
