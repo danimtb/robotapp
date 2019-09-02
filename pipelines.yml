@@ -2,8 +2,8 @@ resources:
   - name: conan_robotapp_github
     type: GitRepo
     configuration:
-      path: czoido/robotapp
-      gitProvider: czoido_github
+      path: danimtb/robotapp
+      gitProvider: GitHub_danimtb
 
 pipelines:
   - name: robotapp
@@ -29,7 +29,6 @@ pipelines:
             - pip install conan --upgrade
             - pip install conan_package_tools
             - conan user
-            - git clone https://github.com/czoido/robotapp.git
             - cd robotapp
             - conan profile new default --detect
             - conan profile show default
@@ -37,3 +36,11 @@ pipelines:
             - conan profile update settings.compiler.version=8 default
             - export CONAN_GCC_VERSIONS=8
             - python build.py
+      - name: Step1
+        type: Bash
+        configuration:
+          inputSteps:
+            - name: build_robotapp_gcc8
+        execution:
+          onExecute:
+            - echo "I'm running in container!!!"
