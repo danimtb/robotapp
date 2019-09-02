@@ -1,5 +1,5 @@
 resources:
-  - name: conan_robotapp_github
+  - name: conan_robotapp_github2
     type: GitRepo
     configuration:
       path: czoido/robotapp
@@ -18,7 +18,7 @@ pipelines:
                 name: czoido/pipelines-conanio-gcc8-armv7hf
                 tag: latest
           inputResources:
-            - name: conan_robotapp_github
+            - name: conan_robotapp_github2
           integrations:
             - name: czoido_docker
             - name: environment
