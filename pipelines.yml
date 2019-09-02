@@ -54,6 +54,6 @@ pipelines:
             - name: environment
         execution:
           onExecute:
-            - conan profile show ./default
             - cd $res_conan_robotapp_github2_resourcePath
+            - conan profile show ./default
             - conan create . --profile ./default
