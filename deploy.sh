@@ -23,6 +23,7 @@ read_binary_content ()
 }
 
 
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd})
 run_check_directory
 while [ 1 ]
 do
