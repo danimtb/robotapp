@@ -16,12 +16,11 @@ pipelines:
             type: image
             image:
               custom:
-                name: czoido/pipelines-conanio-gcc8-armv7hf
+                name: danimtb/pipelines-conanio-gcc8-armv8
                 tag: latest
           inputResources:
             - name: conan_robotapp_github2
           integrations:
-            - name: czoido_docker
             - name: environment
             - name: artifactory
         execution:
@@ -46,14 +45,13 @@ pipelines:
             type: image
             image:
               custom:
-                name: czoido/pipelines-conanio-gcc8-armv7hf
+                name: danimtb/pipelines-conanio-gcc8-armv8
                 tag: latest
           inputResources:
             - name: conan_robotapp_github2
           inputSteps:
             - name: configure_environment
           integrations:
-            - name: czoido_docker
             - name: environment
             - name: artifactory
         execution:
@@ -71,16 +69,11 @@ pipelines:
             type: image
             image:
               custom:
-                name: czoido/pipelines-conanio-gcc8-armv7hf
+                name: danimtb/pipelines-conanio-gcc8-armv8
                 tag: latest
           inputSteps:
             - name: create_app
-          integrations:
-            - name: czoido_docker
-            - name: environment
         execution:
           onExecute:
             - restore_run_files conan_user_home ~/.conan
-            - export CONAN_LOGIN_USERNAME=$int_environment_CONAN_LOGIN_USERNAME
-            - export CONAN_PASSWORD=$int_environment_CONAN_PASSWORD
             - conan upload robotapp/1.0@user/channel --all
