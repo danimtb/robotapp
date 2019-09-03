@@ -3,21 +3,25 @@
 URL_TGZ="https://art-yalla.jfrog-lab.com/artifactory/conan-repo/_/robotapp/0.1/_/0/package/6a3e26c13846e76b140eb8d0801e0fb14640f3e1/0/conan_package.tgz"
 APP_PATH="bin/robotapp"
 
+parent_folder=$(pwd)
+check_folder=$(pwd)/check
+execute_folder=$(pwd)/execute
+
 
 run_check_directory()
 {
-    if [ -d "check" ]; then
+    if [ -d $check_folder ]; then
         rm -r check
     fi
     sleep 1
-    mkdir check
+    mkdir $check_folder
     sleep 1
-    cd check
+    cd $check_folder
     sleep 1
     wget "$URL_TGZ"
     tar -xzf conan_package.tgz
     rm conan_package.tgz
-    cd ..
+    cd $parent_folder
 }
 
 read_binary_content ()
@@ -28,19 +32,19 @@ read_binary_content ()
 }
 
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/execute/bin
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$execute_folder/bin
 run_check_directory
 while [ 1 ]
 do
-    if [ -d "execute" ]; then
+    if [ -d $execute_folder ]; then
         rm -r execute
     fi
-    cp -R $(pwd)/check $(pwd)/execute
-    cd $(pwd)/execute
+    cp -R $check_folder $execute_folder
+    cd $execute_folder
     $APP_PATH &
     app_pid=$!
     sleep 5
-    deploy_content="$(read_binary_content $(pwd)/execute)"
+    deploy_content="$(read_binary_content $execute_folder)"
     echo "deploy content:"
     echo $deploy_content
     check=1
@@ -49,7 +53,7 @@ do
     do
         sleep 5
         run_check_directory
-        new_deploy_content="$(read_binary_content $(pwd)/check)"
+        new_deploy_content="$(read_binary_content $check_folder)"
         echo "new deploy content:"
         echo $new_deploy_content
 
