@@ -34,14 +34,14 @@ do
     if [ -d "execute" ]; then
         rm -r execute
     fi
-    cp -R ./check ./execute
-    cd execute
+    cp -R $(pwd)/check $(pwd)/execute
+    cd $(pwd)/execute
     $APP_PATH &
     app_pid=$!
     sleep 5
     deploy_content="$(read_binary_content execute)"
     echo "deploy content:"
-     echo $deploy_content
+    echo $deploy_content
     check=1
 
     while [ $check -gt 0 ]
