@@ -1,39 +1,55 @@
 resources:
-  - name: conan_robotapp_github
+  - name: robotapp_github
     type: GitRepo
     configuration:
-      path: czoido/robotapp
-      gitProvider: czoido_github
+      path: danimtb/robotapp
+      gitProvider: danimtb_github
 
 pipelines:
   - name: robotapp
+    configuration:
+      runtime:
+        type: image
+        image:
+          custom:
+            name: danimtb/pipelines-conanio-gcc8-armv7hf
+            tag: latest
     steps:
-      - name: build_robotapp_gcc8
+      - name: configure_environment
         type: Bash
         configuration:
-          runtime:
-            type: image
-            image:
-              custom:
-                name: czoido/pipelines-conanio-gcc8-armv7hf
-                tag: latest
           inputResources:
-            - name: conan_robotapp_github
+            - name: robotapp_github
           integrations:
-            - name: czoido_docker
-            - name: environment
+            - name: artifactory
         execution:
           onExecute:
-            - export CONAN_LOGIN_USERNAME=$int_environment_CONAN_LOGIN_USERNAME
-            - export CONAN_PASSWORD=$int_environment_CONAN_PASSWORD
-            - pip install conan --upgrade
-            - pip install conan_package_tools
             - conan user
-            - git clone https://github.com/czoido/robotapp.git
-            - cd robotapp
+            - conan remote remove conan-center
+            - conan remote add artifactory https://art-yalla.jfrog-lab.com/artifactory/api/conan/conan-repo
+            - conan user $int_artifactory_user --remote artifactory --password $int_artifactory_apikey
             - conan profile new default --detect
-            - conan profile show default
             - conan profile update settings.compiler.libcxx=libstdc++11 default
-            - conan profile update settings.compiler.version=8 default
-            - export CONAN_GCC_VERSIONS=8
-            - python build.py
+            - conan profile update settings.arch=armv7hf default
+            - add_run_files ~/.conan conan_user_home
+      - name: create_app
+        type: Bash
+        configuration:
+          inputResources:
+            - name: robotapp_github
+          inputSteps:
+            - name: configure_environment
+        execution:
+          onExecute:
+            - restore_run_files conan_user_home ~/.conan
+            - conan create $res_robotapp_github_resourcePath
+            - add_run_files ~/.conan conan_user_home2
+      - name: upload_app
+        type: Bash
+        configuration:
+          inputSteps:
+            - name: create_app
+        execution:
+          onExecute:
+            - restore_run_files conan_user_home2 ~/.conan
+            - conan upload --all --confirm "*"
