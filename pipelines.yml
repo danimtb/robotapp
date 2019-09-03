@@ -11,7 +11,6 @@ pipelines:
       - name: configure_environment
         type: Bash
         configuration:
-          affinityGroup: ci_group
           runtime:
             type: image
             image:
@@ -21,7 +20,6 @@ pipelines:
           inputResources:
             - name: conan_robotapp_github2
           integrations:
-            - name: environment
             - name: artifactory
         execution:
           onExecute:
@@ -35,11 +33,11 @@ pipelines:
             - conan profile update settings.compiler.version=8 default
             - export CONAN_GCC_VERSIONS=8
             - conan profile show default
+            - ls -lah ~/.conan
             - add_run_files ~/.conan conan_user_home
       - name: create_app
         type: Bash
         configuration:
-          affinityGroup: ci_group
           runtime:
             type: image
             image:
@@ -50,20 +48,16 @@ pipelines:
             - name: conan_robotapp_github2
           inputSteps:
             - name: configure_environment
-          integrations:
-            - name: environment
-            - name: artifactory
         execution:
           onExecute:
             - restore_run_files conan_user_home ~/.conan
-            - cd $res_conan_robotapp_github2_resourcePath
             - conan profile show default
+            - cd $res_conan_robotapp_github2_resourcePath
             - conan create . --profile default
             - add_run_files ~/.conan conan_user_home
       - name: upload_app
         type: Bash
         configuration:
-          affinityGroup: ci_group
           runtime:
             type: image
             image:
