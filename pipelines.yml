@@ -52,7 +52,7 @@ pipelines:
             - conan profile show default
             - cd $res_conan_robotapp_github2_resourcePath
             - conan create . --profile default
-            - add_run_files ~/.conan conan_user_home
+            - add_run_files ~/.conan conan_user_home2
       - name: upload_app
         type: Bash
         configuration:
@@ -66,7 +66,7 @@ pipelines:
             - name: create_app
         execution:
           onExecute:
-            - restore_run_files conan_user_home ~/.conan
+            - restore_run_files conan_user_home2 ~/.conan
             - ls -lah ~/.conan
             - conan search "*"
             - conan upload --all --confirm "*"
