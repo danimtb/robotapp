@@ -6,7 +6,7 @@ APP_PATH="bin/robotapp"
 
 run_check_directory()
 {
-    if [ -d "check" ] then
+    if [ -d "check" ]; then
         rm -r check
     fi
     sleep 1
@@ -31,7 +31,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/execute/bin
 run_check_directory
 while [ 1 ]
 do
-    if [ -d "execute" ] then
+    if [ -d "execute" ]; then
         rm -r execute
     fi
     cp -R ./check ./execute
@@ -40,6 +40,8 @@ do
     app_pid=$!
     sleep 5
     deploy_content="$(read_binary_content execute)"
+    echo "deploy content:"
+     echo $deploy_content
     check=1
 
     while [ $check -gt 0 ]
@@ -47,6 +49,8 @@ do
         sleep 5
         run_check_directory
         new_deploy_content="$(read_binary_content check)"
+        echo "new deploy content:"
+        echo $new_deploy_content
 
         if [ $deploy_content -ne $new_deploy_content ]; then
             kill -9 $app_pid
