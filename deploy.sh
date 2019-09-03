@@ -11,7 +11,7 @@ execute_folder=$(pwd)/execute
 run_check_directory()
 {
     if [ -d $check_folder ]; then
-        rm -r check
+        rm -r $check_folder
     fi
     sleep 1
     mkdir $check_folder
@@ -34,10 +34,11 @@ read_binary_content ()
 
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$execute_folder/bin
 run_check_directory
+cd $parent_folder
 while [ 1 ]
 do
     if [ -d $execute_folder ]; then
-        rm -r execute
+        rm -r $execute_folder
     fi
     cp -R $check_folder $execute_folder
     cd $execute_folder
@@ -53,6 +54,7 @@ do
     do
         sleep 5
         run_check_directory
+        cd $parent_folder
         new_deploy_content="$(read_binary_content $check_folder)"
         echo "new deploy content:"
         echo $new_deploy_content
