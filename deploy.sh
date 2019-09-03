@@ -27,8 +27,9 @@ run_check_directory()
 read_binary_content ()
 {
     folder=$1
+    echo "folder: $folder"
     binary_content=$(<$folder/$APP_PATH)
-    return binary_content
+    return $binary_content
 }
 
 
@@ -46,8 +47,7 @@ do
     app_pid=$!
     sleep 5
     deploy_content="$(read_binary_content $execute_folder)"
-    echo "deploy content:"
-    echo $deploy_content
+    echo "deploy content: $deploy_content"
     check=1
 
     while [ $check -gt 0 ]
@@ -56,12 +56,13 @@ do
         run_check_directory
         cd $parent_folder
         new_deploy_content="$(read_binary_content $check_folder)"
-        echo "new deploy content:"
-        echo $new_deploy_content
+        echo "new deploy content: $new_deploy_content"
 
         if [ $deploy_content -ne $new_deploy_content ]; then
+            echo "KIIIIIIIIIIIIIIIIIIIILLLLL"
             kill -9 $app_pid
             check=0
         fi
+        echo $check
     done
 done
