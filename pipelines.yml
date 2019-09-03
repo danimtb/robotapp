@@ -28,7 +28,7 @@ pipelines:
             - pip install conan --upgrade
             - conan user
             - conan remote remove conan-center
-            - conan remote add artifactory $int_artifactory_url
+            - conan remote add artifactory https://art-yalla.jfrog-lab.com/artifactory/api/conan/conan-repo
             - conan user $int_artifactory_user --remote artifactory --password $int_artifactory_apikey
             - conan profile new default --detect
             - conan profile update settings.compiler.libcxx=libstdc++11 default
