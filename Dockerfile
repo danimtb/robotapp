@@ -10,5 +10,5 @@ RUN apt-get -qq update \
 
 RUN eval "$(ssh-agent -s)"
 
-
-RUN cd /usr/bin && curl -fL https://getcli.jfrog.io | sh
+RUN curl -XGET https://api.bintray.com/content/jfrog/jfrog-cli-go/\$latest/jfrog-cli-linux-amd64/jfrog?bt_package=jfrog-cli-linux-amd64 -L -k > /usr/bin/jfrog \
+    && chmod u+x /usr/bin/jfrog
