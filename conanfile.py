@@ -12,13 +12,16 @@ class RobotAppConan(ConanFile):
     requires = "gopigo/2.4.2"
     default_options = "gopigo:shared=True"
 
+    def imports(self):
+        self.copy("*.so", src="bin", dst="bin")
+
     def build(self):
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        self.copy("robotapp*", src="bin", dst="bin")
+        self.copy("*", src="bin", dst="bin")
 
     def deploy(self):
         self.copy("robotapp*", src="bin", dst="bin")
