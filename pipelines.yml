@@ -67,4 +67,6 @@ pipelines:
         execution:
           onExecute:
             - restore_run_files conan_user_home ~/.conan
+            - ls -lah ~/.conan
+            - conan search "*"
             - conan upload --all --confirm "*"
