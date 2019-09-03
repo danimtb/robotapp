@@ -1,4 +1,4 @@
-FROM conanio/gcc8-armv8
+FROM conanio/gcc8-armv7hf
 
 LABEL maintainer="Carlos Zoido <carlosz@jfrog.com>"
 

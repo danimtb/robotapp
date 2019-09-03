@@ -12,7 +12,7 @@ pipelines:
         type: image
         image:
           custom:
-            name: danimtb/pipelines-conanio-gcc8-armv8
+            name: danimtb/pipelines-conanio-gcc8-armv7hf
             tag: latest
     steps:
       - name: configure_environment
@@ -30,7 +30,7 @@ pipelines:
             - conan user $int_artifactory_user --remote artifactory --password $int_artifactory_apikey
             - conan profile new default --detect
             - conan profile update settings.compiler.libcxx=libstdc++11 default
-            - conan profile update settings.arch=armv8 default
+            - conan profile update settings.arch=armv7hf default
             - add_run_files ~/.conan conan_user_home
       - name: create_app
         type: Bash

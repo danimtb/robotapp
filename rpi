@@ -5,7 +5,7 @@ arch_build=armv8
 
 # We are cross building to RPI (Linux), ARMv7
 os=Linux
-arch=armv8
+arch=armv7hf
 compiler=gcc
 
 # Adjust to the gcc version
