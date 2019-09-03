@@ -1,5 +1,5 @@
 resources:
-  - name: conan_robotapp_github2
+  - name: robotapp_github
     type: GitRepo
     configuration:
       path: danimtb/robotapp
@@ -7,23 +7,23 @@ resources:
 
 pipelines:
   - name: robotapp2
+    configuration:
+      runtime:
+        type: image
+        image:
+          custom:
+            name: danimtb/pipelines-conanio-gcc8-armv8
+            tag: latest
     steps:
       - name: configure_environment
         type: Bash
         configuration:
-          runtime:
-            type: image
-            image:
-              custom:
-                name: danimtb/pipelines-conanio-gcc8-armv8
-                tag: latest
           inputResources:
-            - name: conan_robotapp_github2
+            - name: robotapp_github
           integrations:
             - name: artifactory
         execution:
           onExecute:
-            - pip install conan --upgrade
             - conan user
             - conan remote remove conan-center
             - conan remote add artifactory https://art-yalla.jfrog-lab.com/artifactory/api/conan/conan-repo
@@ -31,42 +31,26 @@ pipelines:
             - conan profile new default --detect
             - conan profile update settings.compiler.libcxx=libstdc++11 default
             - conan profile update settings.arch=armv8 default
-            - conan profile show default
             - add_run_files ~/.conan conan_user_home
       - name: create_app
         type: Bash
         configuration:
-          runtime:
-            type: image
-            image:
-              custom:
-                name: danimtb/pipelines-conanio-gcc8-armv8
-                tag: latest
           inputResources:
-            - name: conan_robotapp_github2
+            - name: robotapp_github
           inputSteps:
             - name: configure_environment
         execution:
           onExecute:
             - restore_run_files conan_user_home ~/.conan
-            - conan profile show default
             - cd $res_conan_robotapp_github2_resourcePath
             - conan create . --profile default
             - add_run_files ~/.conan conan_user_home2
       - name: upload_app
         type: Bash
         configuration:
-          runtime:
-            type: image
-            image:
-              custom:
-                name: danimtb/pipelines-conanio-gcc8-armv8
-                tag: latest
           inputSteps:
             - name: create_app
         execution:
           onExecute:
             - restore_run_files conan_user_home2 ~/.conan
-            - ls -lah ~/.conan
-            - conan search "*"
             - conan upload --all --confirm "*"
