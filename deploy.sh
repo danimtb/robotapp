@@ -6,8 +6,12 @@ APP_PATH="bin/robotapp"
 
 run_check_directory()
 {
-    rm -r check
+    if [ -d "check" ] then
+        rm -r check
+    fi
+    sleep 1
     mkdir check
+    sleep 1
     cd check
     sleep 1
     wget "$URL_TGZ"
@@ -23,11 +27,13 @@ read_binary_content ()
 }
 
 
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd})
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(pwd)/execute/bin
 run_check_directory
 while [ 1 ]
 do
-    rm -r execute
+    if [ -d "execute" ] then
+        rm -r execute
+    fi
     cp -R ./check ./execute
     cd execute
     $APP_PATH &
