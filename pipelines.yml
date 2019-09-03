@@ -42,8 +42,7 @@ pipelines:
         execution:
           onExecute:
             - restore_run_files conan_user_home ~/.conan
-            - cd $res_conan_robotapp_github2_resourcePath
-            - conan create . --profile default
+            - conan create $res_conan_robotapp_github2_resourcePath
             - add_run_files ~/.conan conan_user_home2
       - name: upload_app
         type: Bash
