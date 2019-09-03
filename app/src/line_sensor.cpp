@@ -1,13 +1,14 @@
 #include "line_sensor.hpp"
+#include <iostream>
 
 LineSensor::LineSensor(std::string device)
 {
-    intensity_chars_ = {' ','.',':','-','=','+','*','#','%','@'};
+    intensity_chars_ = {' ', '.', ':', '-', '=', '+', '*', '#', '%', '@'};
     if ((fd = open(device.c_str(), O_RDWR)) < 0)
     {
         printf("Failed to open i2c port\n");
     }
-    if (ioctl(fd, I2C_SLAVE, i2c_address) < 0)
+    if (ioctl(fd, I2C_SLAVE, 0x06) < 0)
     {
         printf("Unable to get bus access to talk to slave\n");
     }
@@ -15,86 +16,88 @@ LineSensor::LineSensor(std::string device)
 
 int LineSensor::readSensor()
 {
-    int flag = 0;
-    writeBlock(line_read_cmd, 0, 0, 0); // This Write statement takes 0.895ms
-    int reg_size = 10;
-    //Used to read the data from line sensor using i2c - read(int fildes, void *buf, size_t nbyte);
-    ssize_t ret = read(fd, r_buf, reg_size); //This read statement takes 1.635ms to read from 5 IR sensors
-    if (ret != reg_size)
+    char _reg[1];
+    _reg[0] = {0x01};
+    write(fd, _reg, 1);
+    usleep(10000);
+    char values[8] = {0};
+    read(fd, values, 8);
+    for (int s = 0; s < 6; s++)
     {
-        if (ret == -1)
-        {
-            printf("Unable to read from Line Sensor (errno %i): %s\n", errno, strerror(errno));
-        }
-        else
-        {
-            printf("Unable to read from Line_Sensor\n");
-        }
-        return -1;
-    }
-    for (i = 0; i < 10; i = i + 2)
-    {                                                    // To convert the 10 bit analog reading of each sensor to decimal and store it in read_val[]
-        read_val[i / 2] = r_buf[i] * 256 + r_buf[i + 1]; // Values less than 100 - White, Values greater than 800- Black
-        if (read_val[i / 2] > 65000)                     // Checking for junk values in the input
-            flag = 1;
-    }
-    if (flag == 1)
-    {
-        for (i = 0; i < 5; i++)
-            read_val[i] = -1; // Making junk input values to -1
+        read_val[s] = (values[s] << 2) | ((values[6 + int(s / 4)] >> (2 * (s % 4))) & 0x03);
     }
     return 0;
 }
 
-int LineSensor::writeBlock(char cmd, char v1, char v2, char v3)
+// from https://github.com/pololu/libpololu-avr
+// Operates the same as read calibrated, but also returns an
+// estimated position of the robot with respect to a line. The
+// estimate is made using a weighted average of the sensor indices
+// multiplied by 1000, so that a return value of 0 indicates that
+// the line is directly below sensor 0, a return value of 1000
+// indicates that the line is directly below sensor 1, 2000
+// indicates that it's below sensor 2000, etc.  Intermediate
+// values indicate that the line is between two sensors.  The
+// formula is:
+//
+//    0*value0 + 1000*value1 + 2000*value2 + ...
+//   --------------------------------------------
+//         value0  +  value1  +  value2 + ...
+//
+// By default, this function assumes a dark line (high values)
+// surrounded by white (low values).  If your line is light on
+// black, set the optional second argument white_line to true.  In
+// this case, each sensor value will be replaced by (1000-value)
+// before the averaging.
+
+unsigned int LineSensor::readLine()
 {
-    w_buf[0] = 1;
-    w_buf[1] = cmd;
-    w_buf[2] = v1;
-    w_buf[3] = v2;
-    w_buf[4] = v3;
+    unsigned char i, on_line = 0;
+    unsigned long avg;         // this is for the weighted total, which is long
+                               // before division
+    unsigned int sum;          // this is for the denominator which is <= 64000
+    static int last_value = 0; // assume initially that the line is left.
 
-    ssize_t ret = write(fd, w_buf, WRITE_BUF_SIZE);
-    // sleep for 1 ms to prevent too fast writing
-    usleep(1);
+    unsigned int _numSensors = 6;
+    avg = 0;
+    sum = 0;
 
-    if (ret != WRITE_BUF_SIZE)
+    for (i = 0; i < _numSensors; i++)
     {
-        if (ret == -1)
+        int value = read_val[i];
+
+        // keep track of whether we see the line at all
+        if (value > 500)
         {
-            printf("Error writing to GoPiGo (errno %i): %s\n", errno, strerror(errno));
+            on_line = 1;
         }
-        else
+
+        // only average in values that are above a noise threshold
+        if (value > 200)
         {
-            printf("Error writing to GoPiGo\n");
+            avg += (long)(value) * (i * 1000);
+            sum += value;
         }
-        return ret;
     }
-    return 1;
+
+    if (!on_line)
+    {
+        // If it last read to the left of center, return 0.
+        if (last_value < (_numSensors - 1) * 1000 / 2)
+            return 0;
+
+        // If it last read to the right of center, return the max.
+        else
+            return (_numSensors - 1) * 1000;
+    }
+
+    last_value = avg / sum;
+
+    return last_value;
 }
 
-char LineSensor::getIntensity(int index) {
+char LineSensor::getIntensity(int index)
+{
     int sensor_value = read_val[index];
-    return intensity_chars_[9-9*sensor_value/1024.0];
-}
-
-char LineSensor::readByte()
-{
-    int reg_size = 1;
-    ssize_t ret = read(fd, r_buf, reg_size);
-
-    if (ret != reg_size)
-    {
-        if (ret == -1)
-        {
-            printf("Unable to read from GoPiGo (errno %i): %s\n", errno, strerror(errno));
-        }
-        else
-        {
-            printf("Unable to read from GoPiGo\n");
-        }
-        return -1;
-    }
-
-    return r_buf[0];
+    return intensity_chars_[9 - 9 * sensor_value / 1024.0];
 }

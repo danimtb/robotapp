@@ -19,31 +19,30 @@ void exit_signal_handler(int signo);
 int main()
 {
   signal(SIGINT, exit_signal_handler);
-
   Server server;
   server.init();
-
   LineSensor line_sensor("/dev/i2c-1");
-  ColorSensor color_sensor("/dev/i2c-1",TCS34725_INTEGRATIONTIME_50MS,TCS34725_GAIN_16X);
-  color_sensor.begin();
-
+  //ColorSensor color_sensor("/dev/i2c-1",TCS34725_INTEGRATIONTIME_50MS,TCS34725_GAIN_16X);
+  //color_sensor.begin();
   GPG.detect();
   GPG.offset_motor_encoder(MOTOR_LEFT, GPG.get_motor_encoder(MOTOR_LEFT));
   GPG.offset_motor_encoder(MOTOR_RIGHT, GPG.get_motor_encoder(MOTOR_RIGHT));
 
-  //std::ofstream fout;
-  //fout.open("sensors.dat", std::ios::app); // open file for appending
-  //assert(!fout.fail());
+  double Kp = 0.025;
+  double Ki = 0.0001;
+  double Kd = 0.00001;
 
-  MiniPID pid = MiniPID(65, 1, 0);
-	pid.setOutputLimits(-75,75);
-	//pid.setOutputRampRate(10);
-  double setpoint=0;
-  double sensor=0;
+  const int max_val = 100;
 
+  MiniPID pid = MiniPID(Kp, Ki, Kd);
+  pid.setOutputLimits(-max_val, max_val);
+
+  double setpoint = 2500;
+  double sensor = 0;
   while (true)
   {
-    std::string buffer = server.getMessage();
+    std::string buffer = "";
+    buffer = server.getMessage();
     double left_y = 0;
     double right_x = 0;
     std::string state = buffer;
@@ -57,69 +56,63 @@ int main()
         right_x = std::stoi(tokens[2]) / 255.00;
       }
     }
+
     double threshold_val = 0.1;
     int total_power = 0;
     double factor_left = 1.0;
     double factor_right = 1.0;
     int motor_left = 0;
     int motor_right = 0;
-    // MANUAL CONTROL
-    if (fabs(right_x-0.5) > threshold_val && fabs(left_y) > threshold_val)
-    {
-      total_power = static_cast<int>(100.0 * left_y);
-      if (right_x < 0.5)
-        factor_left = 2.0 * right_x;
-      if (right_x > 0.5)
-        factor_right = 2.0 * (1.0 - right_x);
 
-      motor_left = factor_left * total_power;
-      motor_right = factor_right * total_power;
-      std::cout << "power: " << total_power << " left: " << motor_left << " right: " << motor_right << std::endl;
-    }
-    // AUTOMATIC ALGORITHM
-    else
+    // MANUAL CONTROL
+    /*
+         if (fabs(right_x-0.5) > threshold_val && fabs(left_y) > threshold_val)
+         {
+         total_power = static_cast<int>(100.0 * left_y);
+         if (right_x < 0.5)
+         factor_left = 2.0 * right_x;
+         if (right_x > 0.5)
+         factor_right = 2.0 * (1.0 - right_x);
+         
+         motor_left = factor_left * total_power;
+         motor_right = factor_right * total_power;
+         std::cout << "power: " << total_power << " left: " << motor_left << " right: " << motor_right << std::endl;
+         }
+         // AUTOMATIC ALGORITHM
+         else    */
+
     {
       int result = line_sensor.readSensor();
-      sensor = 0;
-      for (int i=0;i<5;i++) { 
-          sensor += ((i-2)*(1024-line_sensor.getVal(i)))/1024.0;        
+      int sensor = line_sensor.readLine();
+      double power_difference = pid.getOutput(sensor, setpoint);
+
+
+      if (power_difference > max_val)
+        power_difference = max_val;
+      if (power_difference < -max_val)
+        power_difference = -max_val;
+
+      if (power_difference < 0)
+      {
+        motor_left = max_val + power_difference;
+        motor_right = max_val;
       }
-      
-      double out=pid.getOutput(sensor,setpoint);
-      total_power = static_cast<int>(100.0 * left_y);
-      double control_command = (-out/100.0)/2.0+0.5;
-      if (line_sensor.getVal(0)<200 &&
-          line_sensor.getVal(1)<200 &&
-          line_sensor.getVal(2)<200 &&
-          line_sensor.getVal(3)<200 &&
-          line_sensor.getVal(4)<200) {
-            control_command = (out/100.0)/2.0+0.5;
-          }
-      std::cout << "sensor:" << sensor << " command:" << control_command;
+      else
+      {
+        motor_left = max_val;
+        motor_right = max_val - power_difference;
+      }
 
-      for (int i=0;i<5;i++) {
-        std::cout <<  " " << line_sensor.getVal(i);   
-      } 
-      std::cout << std::endl;
-
-      if (control_command < 0.5)
-        factor_left = 2.0 * control_command;
-      if (control_command > 0.5)
-        factor_right = 2.0 * (1.0 - control_command);
-
-      motor_left = factor_left * total_power;
-      motor_right = factor_right * total_power;
-      std::cout << "power: " << total_power << " left: " << motor_left << " right: " << motor_right << std::endl;
+      std::cout << "sensor: " << sensor << " power difference: " << power_difference << " left: " << motor_left << " right: " << motor_right << std::endl;
     }
     GPG.set_motor_power(MOTOR_LEFT, motor_left);
     GPG.set_motor_power(MOTOR_RIGHT, motor_right);
-    uint16_t r, g, b, c, colorTemp, lux;
-    color_sensor.getRawData(&r, &g, &b, &c);
-    std::cout << r << " " << g << " " << b << " " << c << std::endl;
-    usleep(10000);
+    //uint16_t r, g, b, c, colorTemp, lux;
+    //color_sensor.getRawData(&r, &g, &b, &c);
+    //std::cout << r << " " << g << " " << b << " " << c << std::endl;
+    usleep(3000);
   }
-  //fout.close(); //close file
-  //assert(!fout.fail());
+
 }
 
 void exit_signal_handler(int signo)
