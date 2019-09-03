@@ -44,6 +44,7 @@ do
 
     while [ $check -gt 0 ]
     do
+        sleep 5
         run_check_directory
         new_deploy_content="$(read_binary_content check)"
 
