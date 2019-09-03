@@ -1,6 +1,6 @@
 #!/bin/bash
 
-URL_TGZ="https://art-yalla.jfrog-lab.com/artifactory/conan-repo/_/robotapp/0.1/_/0/package/812a3f58a9ef6ac6d62c5d71bd7fd06d365b7e01/0/conan_package.tgz"
+URL_TGZ="https://art-yalla.jfrog-lab.com/artifactory/conan-repo/_/robotapp/0.1/_/0/package/6a3e26c13846e76b140eb8d0801e0fb14640f3e1/0/conan_package.tgz"
 APP_PATH="bin/robotapp"
 
 
