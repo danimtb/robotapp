@@ -1,6 +1,14 @@
-FROM conanio/gcc6-armv7hf
+FROM conanio/gcc8-armv8
 
-RUN pip install conan --upgrade
-RUN pip install conan_package_tools
-RUN conan user
-RUN python build.py
+LABEL maintainer="Carlos Zoido <carlosz@jfrog.com>"
+
+USER root
+
+RUN apt-get -qq update \
+    && apt-get -qq install -y --no-install-recommends \
+    openssh-client
+
+RUN eval "$(ssh-agent -s)"
+
+
+RUN cd /usr/bin && curl -fL https://getcli.jfrog.io | sh
