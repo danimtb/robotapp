@@ -1,15 +1,15 @@
 from conans import ConanFile, CMake
 
 
-class BlinkAppConan(ConanFile):
+class RobotAppConan(ConanFile):
     name = "robotapp"
     version = "0.1"
     license = "MIT"
     description = "Robot application"
     settings = "os", "compiler", "build_type", "arch"
-    exports_sources = "CMakeLists.txt", "app*", "wrapper*", "LICENSE"
+    exports_sources = "CMakeLists.txt", "app*", "LICENSE"
     generators = "cmake"
-    requires = "gopigo/2.4.2@conan/stable"
+    requires = "gopigo/2.4.2"
     default_options = "gopigo:shared=True"
 
     def build(self):
