@@ -22,3 +22,4 @@ class RobotAppConan(ConanFile):
 
     def deploy(self):
         self.copy("robotapp*", src="bin", dst="bin")
+        self.copy_deps("*.so", src="bin", dst="bin")
