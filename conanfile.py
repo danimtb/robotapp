@@ -11,9 +11,10 @@ class RobotAppConan(ConanFile):
     generators = "cmake"
     requires = "gopigo/2.4.2"
     default_options = "gopigo:shared=True"
+    keep_imports = True
 
     def imports(self):
-        self.copy("*.so", src="bin", dst="bin")
+        self.copy("*.so")
 
     def build(self):
         cmake = CMake(self)
@@ -22,7 +23,8 @@ class RobotAppConan(ConanFile):
 
     def package(self):
         self.copy("*", src="bin", dst="bin")
+        self.copy("*.so", src="lib", dst="bin")
 
     def deploy(self):
         self.copy("robotapp*", src="bin", dst="bin")
-        self.copy_deps("*.so", src="bin", dst="bin")
+        self.copy_deps("*", src="lib", dst="bin")
