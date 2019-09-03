@@ -6,7 +6,7 @@ resources:
       gitProvider: danimtb_github
 
 pipelines:
-  - name: robotapp2
+  - name: robotapp
     configuration:
       runtime:
         type: image
