@@ -30,10 +30,8 @@ pipelines:
             - conan user $int_artifactory_user --remote artifactory --password $int_artifactory_apikey
             - conan profile new default --detect
             - conan profile update settings.compiler.libcxx=libstdc++11 default
-            - conan profile update settings.compiler.version=8 default
-            - export CONAN_GCC_VERSIONS=8
+            - conan profile update settings.arch=armv8 default
             - conan profile show default
-            - ls -lah ~/.conan
             - add_run_files ~/.conan conan_user_home
       - name: create_app
         type: Bash
