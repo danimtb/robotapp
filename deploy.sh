@@ -17,6 +17,7 @@ run_check_directory()
     wget "$URL_TGZ"
     tar -xzf conan_package.tgz
     rm conan_package.tgz
+    cd ..
 }
 
 read_binary_content ()
@@ -39,7 +40,7 @@ do
     $APP_PATH &
     app_pid=$!
     sleep 5
-    deploy_content="$(read_binary_content execute)"
+    deploy_content="$(read_binary_content $(pwd)/execute)"
     echo "deploy content:"
     echo $deploy_content
     check=1
@@ -48,7 +49,7 @@ do
     do
         sleep 5
         run_check_directory
-        new_deploy_content="$(read_binary_content check)"
+        new_deploy_content="$(read_binary_content $(pwd)/check)"
         echo "new deploy content:"
         echo $new_deploy_content
 
