@@ -115,8 +115,8 @@ void stop_motors()
 
 int main()
 {
-  stop_motors();
-  return 0;
+  //stop_motors();
+  //return 0;
   signal(SIGINT, exit_signal_handler);
 
 
