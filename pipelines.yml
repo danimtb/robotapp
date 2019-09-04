@@ -37,6 +37,7 @@ pipelines:
         configuration:
           inputResources:
             - name: robotapp_github
+              trigger: false
           inputSteps:
             - name: configure_environment
         execution:
