@@ -109,6 +109,7 @@ private:
 
 int main()
 {
+  return 0;
   signal(SIGINT, exit_signal_handler);
 
  
