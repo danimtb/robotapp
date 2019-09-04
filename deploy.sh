@@ -1,11 +1,12 @@
 #!/bin/bash
 
-URL_TGZ="https://art-yalla.jfrog-lab.com/artifactory/conan-repo/_/robotapp/0.1/_/0/package/6a3e26c13846e76b140eb8d0801e0fb14640f3e1/0/conan_package.tgz"
+URL_TGZ="https://art-yalla.jfrog-lab.com/artifactory/conan-repo/_/robotapp/0.1/_/0/package/fb6b4d27890a0ab29e0cb57c5a10dbabe80b37fc/0/conan_package.tgz"
 APP_PATH="bin/robotapp"
 
 parent_folder=$(pwd)
 check_folder=$(pwd)/check
 execute_folder=$(pwd)/execute
+app_md5=""
 
 
 run_check_directory()
@@ -27,9 +28,9 @@ run_check_directory()
 read_binary_content ()
 {
     folder=$1
-    echo "folder: $folder"
-    binary_content=$(<"$folder/$APP_PATH")
-    echo "$binary_content"  # return value
+    #echo "folder: $folder"
+    md5=$(md5sum "$folder/$APP_PATH")
+    app_md5="${md5%% *}"
 }
 
 
@@ -46,8 +47,8 @@ do
     $APP_PATH &
     app_pid=$!
     sleep 5
-    deploy_content="$(read_binary_content "$execute_folder")"
-    echo "deploy content: $deploy_content"
+    read_binary_content "$execute_folder"
+    deploy_content="$app_md5"
     check=1
 
     while [ $check -gt 0 ]
@@ -55,14 +56,17 @@ do
         sleep 5
         run_check_directory
         cd "$parent_folder" || exit
-        new_deploy_content="$(read_binary_content "$check_folder")"
-        echo "new deploy content: $new_deploy_content"
+        read_binary_content "$check_folder"
+        new_deploy_content="$app_md5"
 
-        if [ "$deploy_content" -ne "$new_deploy_content" ]; then
+        echo "$new_deploy_content"
+        echo "$deploy_content"
+
+        if [ "$deploy_content" != "$new_deploy_content" ]; then
             echo "KIIIIIIIIIIIIIIIIIIIILLLLL"
-            kill -9 $app_pid
+            kill -TERM $app_pid
             check=0
         fi
-        echo $check
+        #echo $check
     done
 done
