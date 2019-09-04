@@ -107,8 +107,15 @@ private:
   }
 };
 
+void stop_motors()
+{
+  GPG.set_motor_power(MOTOR_LEFT, 0);
+  GPG.set_motor_power(MOTOR_RIGHT, 0);
+}
+
 int main()
 {
+  stop_motors();
   return 0;
   signal(SIGINT, exit_signal_handler);
 
