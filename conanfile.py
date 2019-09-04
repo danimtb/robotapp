@@ -9,8 +9,8 @@ class RobotAppConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     exports_sources = "CMakeLists.txt", "app*", "LICENSE"
     generators = "cmake"
-    requires = "gopigo/2.4.2", "Seasocks/1.3.2"
-    default_options = "gopigo:shared=True", "Seasocks:shared=True"
+    requires = "gopigo/2.4.2", "seasocks/1.3.2"
+    default_options = "gopigo:shared=True", "seasocks:shared=True"
     keep_imports = True
 
     def imports(self):
