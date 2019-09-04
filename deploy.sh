@@ -29,7 +29,7 @@ read_binary_content ()
     folder=$1
     echo "folder: $folder"
     binary_content=$(<"$folder/$APP_PATH")
-    return "$binary_content"
+    echo "$binary_content"  # return value
 }
 
 
