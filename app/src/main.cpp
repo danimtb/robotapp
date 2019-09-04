@@ -1,4 +1,23 @@
+#include "seasocks/PrintfLogger.h"
+#include "seasocks/Server.h"
+#include "seasocks/StringUtil.h"
+#include "seasocks/WebSocket.h"
+#include "seasocks/util/Json.h"
+#include "line_sensor.hpp"
+#include "color_sensor.hpp"
+//#include "server.hpp"
+#include "MiniPID.h"
 #include <GoPiGo3.h>
+
+#include <cstring>
+#include <iostream>
+#include <memory>
+#include <set>
+#include <sstream>
+#include <string>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/epoll.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
@@ -7,20 +26,93 @@
 #include <iterator>
 #include <fstream>
 #include <assert.h>
-#include "line_sensor.hpp"
-#include "color_sensor.hpp"
-#include "server.hpp"
-#include "MiniPID.h"
+#include <sstream>
+
 
 GoPiGo3 GPG;
+using namespace seasocks;
 
 void exit_signal_handler(int signo);
+
+class MyHandler : public WebSocket::Handler
+{
+public:
+  explicit MyHandler(Server *server)
+      : _server(server), _currentValue(0)
+  {
+    setValue(1);
+  }
+
+  virtual void onConnect(WebSocket *connection) override
+  {
+    _connections.insert(connection);
+    connection->send(_currentSetValue.c_str());
+    std::cout << "Connected: " << connection->getRequestUri()
+              << " : " << formatAddress(connection->getRemoteAddress())
+              << "\nCredentials: " << *(connection->credentials()) << "\n";
+  }
+
+  virtual void onData(WebSocket *connection, const char *data) override
+  {
+    if (0 == strcmp("die", data))
+    {
+      _server->terminate();
+      return;
+    }
+    if (0 == strcmp("close", data))
+    {
+      std::cout << "Closing..\n";
+      connection->close();
+      std::cout << "Closed.\n";
+      return;
+    }
+
+/*
+    const int value = std::stoi(data) + 1;
+    if (value > _currentValue)
+    {
+      setValue(value);
+      for (auto c : _connections)
+      {
+        c->send(_currentSetValue.c_str());
+      }
+    }
+
+*/
+  }
+  void send(std::string data)
+  {
+    for (auto c : _connections)
+    {
+      c->send(data.c_str());
+    }
+  }
+  virtual void onDisconnect(WebSocket *connection) override
+  {
+    _connections.erase(connection);
+    std::cout << "Disconnected: " << connection->getRequestUri()
+              << " : " << formatAddress(connection->getRemoteAddress()) << "\n";
+  }
+
+private:
+  std::set<WebSocket *> _connections;
+  Server *_server;
+  int _currentValue;
+  std::string _currentSetValue;
+
+  void setValue(int value)
+  {
+    _currentValue = value;
+    _currentSetValue = makeExecString("set", _currentValue);
+  }
+};
 
 int main()
 {
   signal(SIGINT, exit_signal_handler);
-  Server server;
-  server.init();
+
+ 
+
   LineSensor line_sensor("/dev/i2c-1");
   //ColorSensor color_sensor("/dev/i2c-1",TCS34725_INTEGRATIONTIME_50MS,TCS34725_GAIN_16X);
   //color_sensor.begin();
@@ -39,80 +131,82 @@ int main()
 
   double setpoint = 2500;
   double sensor = 0;
+
+
+ auto logger = std::make_shared<PrintfLogger>();
+
+  Server server(logger);
+
+  auto handler = std::make_shared<MyHandler>(&server);
+  server.addWebSocketHandler("/ws", handler);
+  server.setStaticPath("/ws_test_web");
+  if (!server.startListening(9090)) {
+      std::cerr << "couldn't start listening\n";
+      return 1;
+  }
+  int myEpoll = epoll_create(10);
+  epoll_event wakeSeasocks = {EPOLLIN | EPOLLOUT | EPOLLERR, {&server}};
+  epoll_ctl(myEpoll, EPOLL_CTL_ADD, server.fd(), &wakeSeasocks);  
+
   while (true)
   {
-    std::string buffer = "";
-    buffer = server.getMessage();
-    double left_y = 0;
-    double right_x = 0;
-    std::string state = buffer;
-    std::vector<std::string> messages = split(state, '#');
-    if (messages.size() > 0)
-    {
-      std::vector<std::string> tokens = split(messages[0], ';');
-      if (tokens.size() > 3)
-      {
-        left_y = (128 - std::stoi(tokens[1])) / 128.00;
-        right_x = std::stoi(tokens[2]) / 255.00;
-      }
+    constexpr auto maxEvents = 1;
+    epoll_event events[maxEvents];
+    auto res = epoll_wait(myEpoll, events, maxEvents, 50);
+    if (res < 0) {
+        std::cerr << "epoll returned an error\n";
+        return 1;
     }
+    for (auto i = 0; i < res; ++i) {
+        if (events[i].data.ptr == &server) {
+            auto seasocksResult = server.poll(0);
+            if (seasocksResult == Server::PollResult::Terminated)
+                return 0;
+            if (seasocksResult == Server::PollResult::Error)
+                return 1;
+        }
+    }    
+    int result = line_sensor.readSensor();
+    int sensor = line_sensor.readLine();
 
-    double threshold_val = 0.1;
-    int total_power = 0;
-    double factor_left = 1.0;
-    double factor_right = 1.0;
+    double power_difference = pid.getOutput(sensor, setpoint);
     int motor_left = 0;
     int motor_right = 0;
+    if (power_difference > max_val)
+      power_difference = max_val;
+    if (power_difference < -max_val)
+      power_difference = -max_val;
 
-    // MANUAL CONTROL
-    /*
-         if (fabs(right_x-0.5) > threshold_val && fabs(left_y) > threshold_val)
-         {
-         total_power = static_cast<int>(100.0 * left_y);
-         if (right_x < 0.5)
-         factor_left = 2.0 * right_x;
-         if (right_x > 0.5)
-         factor_right = 2.0 * (1.0 - right_x);
-         
-         motor_left = factor_left * total_power;
-         motor_right = factor_right * total_power;
-         std::cout << "power: " << total_power << " left: " << motor_left << " right: " << motor_right << std::endl;
-         }
-         // AUTOMATIC ALGORITHM
-         else    */
-
+    if (power_difference < 0)
     {
-      int result = line_sensor.readSensor();
-      int sensor = line_sensor.readLine();
-      double power_difference = pid.getOutput(sensor, setpoint);
-
-
-      if (power_difference > max_val)
-        power_difference = max_val;
-      if (power_difference < -max_val)
-        power_difference = -max_val;
-
-      if (power_difference < 0)
-      {
-        motor_left = max_val + power_difference;
-        motor_right = max_val;
-      }
-      else
-      {
-        motor_left = max_val;
-        motor_right = max_val - power_difference;
-      }
-
-      std::cout << "sensor: " << sensor << " power difference: " << power_difference << " left: " << motor_left << " right: " << motor_right << std::endl;
+      motor_left = max_val + power_difference;
+      motor_right = max_val;
     }
+    else
+    {
+      motor_left = max_val;
+      motor_right = max_val - power_difference;
+    }
+
+    //std::cout << "sensor: " << sensor << " power difference: " << power_difference << " left: " << motor_left << " right: " << motor_right << std::endl;
+
     GPG.set_motor_power(MOTOR_LEFT, motor_left);
-    GPG.set_motor_power(MOTOR_RIGHT, motor_right);
+    GPG.set_motor_power(MOTOR_RIGHT, motor_right); 
+
+    std::ostringstream dataStream;
+    dataStream << sensor << ";" 
+               << power_difference << ";"
+               << motor_left << ";" 
+               << motor_right << ";" 
+               << GPG.get_motor_encoder(MOTOR_LEFT) << ";" 
+               << GPG.get_motor_encoder(MOTOR_RIGHT);
+    handler->send(dataStream.str());
+    std::cout << dataStream.str() << std::endl;
+
     //uint16_t r, g, b, c, colorTemp, lux;
     //color_sensor.getRawData(&r, &g, &b, &c);
     //std::cout << r << " " << g << " " << b << " " << c << std::endl;
-    usleep(3000);
   }
-
 }
 
 void exit_signal_handler(int signo)
