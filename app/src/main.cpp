@@ -195,12 +195,12 @@ int main()
     //std::cout << "sensor: " << sensor << " power difference: " << power_difference << " left: " << motor_left << " right: " << motor_right << std::endl;
     bool bug = false;
     if (bug) {
-      GPG.set_motor_power(MOTOR_LEFT, motor_left);
-      GPG.set_motor_power(MOTOR_RIGHT, motor_right);
-    }
-    else {
       GPG.set_motor_power(MOTOR_LEFT, 50);
       GPG.set_motor_power(MOTOR_RIGHT, -50);
+    }
+    else {
+      GPG.set_motor_power(MOTOR_LEFT, motor_left);
+      GPG.set_motor_power(MOTOR_RIGHT, motor_right);
     }
     float r, g, b;
     color_sensor.getRGB(&r, &g, &b);
