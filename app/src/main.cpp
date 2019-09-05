@@ -115,6 +115,8 @@ void stop_motors()
 
 int main()
 {
+  stop_motors();
+  return 0;
   signal(SIGINT, exit_signal_handler);
   LineSensor line_sensor("/dev/i2c-1");
   ColorSensor color_sensor("/dev/i2c-1", TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_16X);
