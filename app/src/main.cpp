@@ -218,7 +218,7 @@ int main()
                 << g << ";"
                 << b;
       handler->send(dataStream.str());
-      //std::cout << dataStream.str() << std::endl;
+      std::cout << dataStream.str() << std::endl;
     }
     counter++;
   }
