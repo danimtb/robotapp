@@ -108,6 +108,7 @@ private:
 
 void stop_motors()
 {
+  std::cout << "stop motors" << std::endl;
   GPG.set_motor_power(MOTOR_LEFT, 0);
   GPG.set_motor_power(MOTOR_RIGHT, 0);
 }
@@ -147,12 +148,12 @@ int main()
   int myEpoll = epoll_create(10);
   epoll_event wakeSeasocks = {EPOLLIN | EPOLLOUT | EPOLLERR, {&server}};
   epoll_ctl(myEpoll, EPOLL_CTL_ADD, server.fd(), &wakeSeasocks);
-
+  int counter = 0;
   while (true)
   {
     constexpr auto maxEvents = 1;
     epoll_event events[maxEvents];
-    auto res = epoll_wait(myEpoll, events, maxEvents, 50);
+    auto res = epoll_wait(myEpoll, events, maxEvents, 30);
     if (res < 0)
     {
       std::cerr << "epoll returned an error\n";
@@ -203,21 +204,23 @@ int main()
     }
     float r, g, b;
     color_sensor.getRGB(&r, &g, &b);
-    std::cout << r << " " << g << " " << b << std::endl;
-
-    std::ostringstream dataStream;
-    dataStream << sensor << ";"
-               << power_difference << ";"
-               << motor_left << ";"
-               << motor_right << ";"
-               << GPG.get_motor_encoder(MOTOR_LEFT) << ";"
-               << GPG.get_motor_encoder(MOTOR_RIGHT) << ";"
-               << r << ";"
-               << g << ";"
-               << b;
-    handler->send(dataStream.str());
-    //std::cout << dataStream.str() << std::endl;
-
+    int encoder_left = GPG.get_motor_encoder(MOTOR_LEFT)%360;
+    int encoder_right = GPG.get_motor_encoder(MOTOR_RIGHT)%360;
+    if (counter%6==0) {
+      std::ostringstream dataStream;
+      dataStream << sensor << ";"
+                << power_difference << ";"
+                << motor_left << ";"
+                << motor_right << ";"
+                << encoder_left << ";"
+                << encoder_right << ";"
+                << r << ";"
+                << g << ";"
+                << b;
+      handler->send(dataStream.str());
+      //std::cout << dataStream.str() << std::endl;
+    }
+    counter++;
   }
 }
 
