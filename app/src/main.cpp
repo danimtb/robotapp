@@ -153,7 +153,7 @@ int main()
   {
     constexpr auto maxEvents = 1;
     epoll_event events[maxEvents];
-    auto res = epoll_wait(myEpoll, events, maxEvents, 30);
+    auto res = epoll_wait(myEpoll, events, maxEvents, 50);
     if (res < 0)
     {
       std::cerr << "epoll returned an error\n";
