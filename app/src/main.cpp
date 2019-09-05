@@ -123,9 +123,9 @@ int main()
   GPG.offset_motor_encoder(MOTOR_LEFT, GPG.get_motor_encoder(MOTOR_LEFT));
   GPG.offset_motor_encoder(MOTOR_RIGHT, GPG.get_motor_encoder(MOTOR_RIGHT));
 
-  double Kp = 0.025;
-  double Ki = 0.0002;
-  double Kd = 0.00002;
+  double Kp = 0.027;
+  double Ki = 0.00011;
+  double Kd = 0.000011;
   const int max_val = 100;
 
   MiniPID pid = MiniPID(Kp, Ki, Kd);
