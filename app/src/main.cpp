@@ -115,11 +115,9 @@ void stop_motors()
 
 int main()
 {
-  stop_motors();
-  return 0;
   signal(SIGINT, exit_signal_handler);
   LineSensor line_sensor("/dev/i2c-1");
-  ColorSensor color_sensor("/dev/i2c-1", TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_16X);
+  ColorSensor color_sensor("/dev/i2c-1", TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_16X);
   color_sensor.begin();
   GPG.detect();
   GPG.offset_motor_encoder(MOTOR_LEFT, GPG.get_motor_encoder(MOTOR_LEFT));
@@ -195,7 +193,7 @@ int main()
     }
 
     //std::cout << "sensor: " << sensor << " power difference: " << power_difference << " left: " << motor_left << " right: " << motor_right << std::endl;
-    bool bug = false;
+    bool bug = true;
     if (bug) {
       GPG.set_motor_power(MOTOR_LEFT, 50);
       GPG.set_motor_power(MOTOR_RIGHT, -50);
@@ -204,11 +202,12 @@ int main()
       GPG.set_motor_power(MOTOR_LEFT, motor_left);
       GPG.set_motor_power(MOTOR_RIGHT, motor_right);
     }
-    float r, g, b;
+    float r=0, g=0, b=0;
     color_sensor.getRGB(&r, &g, &b);
     int encoder_left = GPG.get_motor_encoder(MOTOR_LEFT)%360;
     int encoder_right = GPG.get_motor_encoder(MOTOR_RIGHT)%360;
-    if (counter%6==0) {
+    //if (counter%6==0) 
+    {
       std::ostringstream dataStream;
       dataStream << sensor << ";"
                 << power_difference << ";"
