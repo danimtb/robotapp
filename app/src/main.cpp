@@ -114,8 +114,6 @@ void stop_motors()
 
 int main()
 {
-  stop_motors();
-  return 0;
   signal(SIGINT, exit_signal_handler);
   LineSensor line_sensor("/dev/i2c-1");
   ColorSensor color_sensor("/dev/i2c-1", TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_16X);
@@ -194,7 +192,7 @@ int main()
     }
 
     //std::cout << "sensor: " << sensor << " power difference: " << power_difference << " left: " << motor_left << " right: " << motor_right << std::endl;
-    bool bug = true;
+    bool bug = false;
     if (bug) {
       GPG.set_motor_power(MOTOR_LEFT, motor_left);
       GPG.set_motor_power(MOTOR_RIGHT, motor_right);
@@ -229,8 +227,7 @@ void exit_signal_handler(int signo)
 {
   if (signo == SIGINT)
   {
-    GPG.set_motor_power(MOTOR_LEFT, 0);
-    GPG.set_motor_power(MOTOR_RIGHT, 0);    
+    stop_motors();
     GPG.reset_all();
     exit(-2);
   }
