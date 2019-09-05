@@ -193,7 +193,7 @@ int main()
     }
 
     //std::cout << "sensor: " << sensor << " power difference: " << power_difference << " left: " << motor_left << " right: " << motor_right << std::endl;
-    bool bug = true;
+    bool bug = false;
     if (bug) {
       GPG.set_motor_power(MOTOR_LEFT, 50);
       GPG.set_motor_power(MOTOR_RIGHT, -50);
