@@ -28,7 +28,6 @@
 #include <assert.h>
 #include <sstream>
 
-
 GoPiGo3 GPG;
 using namespace seasocks;
 
@@ -67,7 +66,7 @@ public:
       return;
     }
 
-/*
+    /*
     const int value = std::stoi(data) + 1;
     if (value > _currentValue)
     {
@@ -109,14 +108,10 @@ private:
 
 int main()
 {
-  return 0;
   signal(SIGINT, exit_signal_handler);
-
- 
-
   LineSensor line_sensor("/dev/i2c-1");
-  //ColorSensor color_sensor("/dev/i2c-1",TCS34725_INTEGRATIONTIME_50MS,TCS34725_GAIN_16X);
-  //color_sensor.begin();
+  ColorSensor color_sensor("/dev/i2c-1", TCS34725_INTEGRATIONTIME_2_4MS, TCS34725_GAIN_16X);
+  color_sensor.begin();
   GPG.detect();
   GPG.offset_motor_encoder(MOTOR_LEFT, GPG.get_motor_encoder(MOTOR_LEFT));
   GPG.offset_motor_encoder(MOTOR_RIGHT, GPG.get_motor_encoder(MOTOR_RIGHT));
@@ -124,7 +119,6 @@ int main()
   double Kp = 0.025;
   double Ki = 0.0001;
   double Kd = 0.00001;
-
   const int max_val = 100;
 
   MiniPID pid = MiniPID(Kp, Ki, Kd);
@@ -132,41 +126,43 @@ int main()
 
   double setpoint = 2500;
   double sensor = 0;
-
-
- auto logger = std::make_shared<PrintfLogger>();
+  auto logger = std::make_shared<PrintfLogger>();
 
   Server server(logger);
 
   auto handler = std::make_shared<MyHandler>(&server);
   server.addWebSocketHandler("/ws", handler);
   server.setStaticPath("/ws_test_web");
-  if (!server.startListening(9090)) {
-      std::cerr << "couldn't start listening\n";
-      return 1;
+  if (!server.startListening(9090))
+  {
+    std::cerr << "couldn't start listening\n";
+    return 1;
   }
   int myEpoll = epoll_create(10);
   epoll_event wakeSeasocks = {EPOLLIN | EPOLLOUT | EPOLLERR, {&server}};
-  epoll_ctl(myEpoll, EPOLL_CTL_ADD, server.fd(), &wakeSeasocks);  
+  epoll_ctl(myEpoll, EPOLL_CTL_ADD, server.fd(), &wakeSeasocks);
 
   while (true)
   {
     constexpr auto maxEvents = 1;
     epoll_event events[maxEvents];
     auto res = epoll_wait(myEpoll, events, maxEvents, 50);
-    if (res < 0) {
-        std::cerr << "epoll returned an error\n";
-        return 1;
+    if (res < 0)
+    {
+      std::cerr << "epoll returned an error\n";
+      return 1;
     }
-    for (auto i = 0; i < res; ++i) {
-        if (events[i].data.ptr == &server) {
-            auto seasocksResult = server.poll(0);
-            if (seasocksResult == Server::PollResult::Terminated)
-                return 0;
-            if (seasocksResult == Server::PollResult::Error)
-                return 1;
-        }
-    }    
+    for (auto i = 0; i < res; ++i)
+    {
+      if (events[i].data.ptr == &server)
+      {
+        auto seasocksResult = server.poll(0);
+        if (seasocksResult == Server::PollResult::Terminated)
+          return 0;
+        if (seasocksResult == Server::PollResult::Error)
+          return 1;
+      }
+    }
     int result = line_sensor.readSensor();
     int sensor = line_sensor.readLine();
 
@@ -190,30 +186,43 @@ int main()
     }
 
     //std::cout << "sensor: " << sensor << " power difference: " << power_difference << " left: " << motor_left << " right: " << motor_right << std::endl;
-
-    GPG.set_motor_power(MOTOR_LEFT, motor_left);
-    GPG.set_motor_power(MOTOR_RIGHT, motor_right); 
+    bool bug = true;
+    if (bug) {
+      GPG.set_motor_power(MOTOR_LEFT, motor_left);
+      GPG.set_motor_power(MOTOR_RIGHT, motor_right);
+    }
+    else {
+      GPG.set_motor_power(MOTOR_LEFT, 50);
+      GPG.set_motor_power(MOTOR_RIGHT, -50);
+    }
+    float r, g, b;
+    color_sensor.getRGB(&r, &g, &b);
+    std::cout << r << " " << g << " " << b << std::endl;
 
     std::ostringstream dataStream;
-    dataStream << sensor << ";" 
+    dataStream << sensor << ";"
                << power_difference << ";"
-               << motor_left << ";" 
-               << motor_right << ";" 
-               << GPG.get_motor_encoder(MOTOR_LEFT) << ";" 
-               << GPG.get_motor_encoder(MOTOR_RIGHT);
+               << motor_left << ";"
+               << motor_right << ";"
+               << GPG.get_motor_encoder(MOTOR_LEFT) << ";"
+               << GPG.get_motor_encoder(MOTOR_RIGHT) << ";"
+               << r << ";"
+               << g << ";"
+               << b;
     handler->send(dataStream.str());
-    std::cout << dataStream.str() << std::endl;
+    //std::cout << dataStream.str() << std::endl;
 
-    //uint16_t r, g, b, c, colorTemp, lux;
-    //color_sensor.getRawData(&r, &g, &b, &c);
-    //std::cout << r << " " << g << " " << b << " " << c << std::endl;
   }
 }
+
+
 
 void exit_signal_handler(int signo)
 {
   if (signo == SIGINT)
   {
+    GPG.set_motor_power(MOTOR_LEFT, 0);
+    GPG.set_motor_power(MOTOR_RIGHT, 0);    
     GPG.reset_all();
     exit(-2);
   }
