@@ -30,11 +30,24 @@ void stop_motors()
   GPG.set_motor_power(MOTOR_RIGHT, 0);
 }
 
-int main()
+int main(int argc, char* argv[])
 {
+  double Kp = 0.030;
+  double Ki = 0.0;
+  double Kd = 0.01;
+  int max_val = 100;
+  std::string uri = "ws://169.254.74.2:8088";
+  
+  if (argc >= 5) {
+    Kp = atof(argv[1]);
+    Ki = atof(argv[2]);
+    Kd = atof(argv[3]);
+    max_val = atoi(argv[4]); 
+    std::cout << "PID params: Kp=" << Kp << " Ki=" << Ki << " Kd=" << Kd << " MaxVel=" << max_val << std::endl;
+  } 
+
   signal(SIGINT, exit_signal_handler);
   wsClient client;
-  std::string uri = "ws://169.254.74.2:8088";
   client.connect(uri);
 
   LineSensor line_sensor("/dev/i2c-1");
@@ -44,10 +57,7 @@ int main()
   GPG.offset_motor_encoder(MOTOR_LEFT, GPG.get_motor_encoder(MOTOR_LEFT));
   GPG.offset_motor_encoder(MOTOR_RIGHT, GPG.get_motor_encoder(MOTOR_RIGHT));
 
-  double Kp = 0.027;
-  double Ki = 0.00011;
-  double Kd = 0.000011;
-  const int max_val = 100;
+
 
   MiniPID pid = MiniPID(Kp, Ki, Kd);
   pid.setOutputLimits(-max_val, max_val);
@@ -103,7 +113,8 @@ int main()
               << r << ";"
               << g << ";"
               << b;
-    std::cout << dataStream.str() << std::endl;
+    //std::cout << dataStream.str() << std::endl;
+    std::cout << pid.getErrorSum() << std::endl;
     client.send_message(dataStream.str());
   }
   client.join_thread();
