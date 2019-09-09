@@ -21,8 +21,6 @@
 
 GoPiGo3 GPG;
 
-wsClient client;
-
 void exit_signal_handler(int signo);
 
 void stop_motors()
@@ -35,6 +33,10 @@ void stop_motors()
 int main()
 {
   signal(SIGINT, exit_signal_handler);
+  wsClient client;
+  std::string uri = "ws://169.254.74.2:8088";
+  client.connect(uri);
+
   LineSensor line_sensor("/dev/i2c-1");
   ColorSensor color_sensor("/dev/i2c-1", TCS34725_INTEGRATIONTIME_50MS, TCS34725_GAIN_16X);
   color_sensor.begin();
@@ -102,7 +104,9 @@ int main()
               << g << ";"
               << b;
     std::cout << dataStream.str() << std::endl;
+    client.send_message(dataStream.str());
   }
+  client.join_thread();
 }
 
 

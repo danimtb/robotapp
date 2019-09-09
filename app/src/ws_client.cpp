@@ -91,6 +91,7 @@ int wsClient::send_message(const std::string &strmessage)
                                   "Send Error: " + ec.message());
         return 0;
     }
+    return 0;
 }
 
 // The open handler will signal that we are ready to start sending telemetry
