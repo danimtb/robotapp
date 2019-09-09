@@ -1,12 +1,10 @@
 /**
-* Small, easy to use PID implementation with advanced controller capability.<br> 
-* Minimal usage:<br>
-* setPID(p,i,d); <br>
-* ...looping code...{ <br>
-* output=getOutput(sensorvalue,target); <br>
+* Small, easy to use PID implementation with advanced controller capability.<br> Minimal usage:<br>
+* setPID(p,i,d); <br> ...looping code...{ <br> output=getOutput(sensorvalue,target); <br>
 * }
-* 
-* @see http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-direction/improving-the-beginners-pid-introduction
+*
+* @see
+* http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-direction/improving-the-beginners-pid-introduction
 */
 
 #include "mini_pid.hpp"
@@ -47,12 +45,11 @@ void MiniPID::init(){
 //Configuration functions
 //**********************************
 /**
- * Configure the Proportional gain parameter. <br>
- * this->responds quicly to changes in setpoint, and provides most of the initial driving force
- * to make corrections. <br>
- * Some systems can be used with only a P gain, and many can be operated with only PI.<br>
- * For position based controllers, this->is the first parameter to tune, with I second. <br>
- * For rate controlled systems, this->is often the second after F.
+ * Configure the Proportional gain parameter. <br> this->responds quicly to changes in setpoint, and
+ * provides most of the initial driving force to make corrections. <br> Some systems can be used with
+ * only a P gain, and many can be operated with only PI.<br> For position based controllers, this->is
+ * the first parameter to tune, with I second. <br> For rate controlled systems, this->is often the
+ * second after F.
  *
  * @param p Proportional gain. Affects output according to <b>output+=P*(setpoint-current_value)</b>
  */
@@ -62,11 +59,11 @@ void MiniPID::setP(double p){
 }
 
 /**
- * Changes the I parameter <br>
- * this->is used for overcoming disturbances, and ensuring that the controller always gets to the control mode. 
- * Typically tuned second for "Position" based modes, and third for "Rate" or continuous based modes. <br>
- * Affects output through <b>output+=previous_errors*Igain ;previous_errors+=current_error</b>
- * 
+ * Changes the I parameter <br> this->is used for overcoming disturbances, and ensuring that the
+ * controller always gets to the control mode. Typically tuned second for "Position" based modes, and
+ * third for "Rate" or continuous based modes. <br> Affects output through
+ * <b>output+=previous_errors*Igain ;previous_errors+=current_error</b>
+ *
  * @see {@link #setMaxIOutput(double) setMaxIOutput} for how to restrict
  *
  * @param i New gain value for the Integral term
@@ -80,10 +77,9 @@ void MiniPID::setI(double i){
 	}
 	I=i;
 	checkSigns();
-	 /* Implementation note: 
-	 * this->Scales the accumulated error to avoid output errors. 
-	 * As an example doubling the I term cuts the accumulated error in half, which results in the 
-	 * output change due to the I term constant during the transition. 
+	 /* Implementation note: this->Scales the accumulated error to avoid output errors. As an example
+	 * doubling the I term cuts the accumulated error in half, which results in the output change due
+	 * to the I term constant during the transition. 
 	 *
 	 */
 } 
@@ -93,11 +89,10 @@ void MiniPID::setD(double d){
 	checkSigns();
 }
 
-/**Configure the FeedForward parameter. <br>
- * this->is excellent for Velocity, rate, and other	continuous control modes where you can 
- * expect a rough output value based solely on the setpoint.<br>
- * Should not be used in "position" based control modes.
- * 
+/**Configure the FeedForward parameter. <br> this->is excellent for Velocity, rate, and other
+ * continuous control modes where you can expect a rough output value based solely on the
+ * setpoint.<br> Should not be used in "position" based control modes.
+ *
  * @param f Feed forward gain. Affects output according to <b>output+=F*Setpoint</b>;
  */
 void MiniPID::setF(double f){
@@ -107,8 +102,9 @@ void MiniPID::setF(double f){
 
 /** Create a new PID object. 
  * @param p Proportional gain. Large if large difference between setpoint and target. 
- * @param i Integral gain.	Becomes large if setpoint cannot reach target quickly. 
- * @param d Derivative gain. Responds quickly to large changes in error. Small values prevents P and I terms from causing overshoot.
+ * @param i Integral gain.  Becomes large if setpoint cannot reach target quickly. 
+ * @param d Derivative gain. Responds quickly to large changes in error. Small values prevents P and
+ * I terms from causing overshoot.
  */
 void MiniPID::setPID(double p, double i, double d){
 	P=p;I=i;D=d;
@@ -120,14 +116,14 @@ void MiniPID::setPID(double p, double i, double d,double f){
 	checkSigns();
 }
 
-/**Set the maximum output value contributed by the I component of the system
- * this->can be used to prevent large windup issues and make tuning simpler
+/**Set the maximum output value contributed by the I component of the system this->can be used to
+ * prevent large windup issues and make tuning simpler
  * @param maximum. Units are the same as the expected output value
  */
 void MiniPID::setMaxIOutput(double maximum){
-	/* Internally maxError and Izone are similar, but scaled for different purposes. 
-	 * The maxError is generated for simplifying math, since calculations against 
-	 * the max error are far more common than changing the I term or Izone. 
+	/* Internally maxError and Izone are similar, but scaled for different purposes. The maxError is
+	 * generated for simplifying math, since calculations against the max error are far more common
+	 * than changing the I term or Izone. 
 	 */
 	maxIOutput=maximum;
 	if(I!=0){
@@ -135,8 +131,7 @@ void MiniPID::setMaxIOutput(double maximum){
 	}
 }
 
-/**Specify a maximum output. If a single parameter is specified, the minimum is 
- * set to (-maximum).
+/**Specify a maximum output. If a single parameter is specified, the minimum is set to (-maximum).
  * @param output 
  */
 void MiniPID::setOutputLimits(double output){ setOutputLimits(-output,output);}
