@@ -15,7 +15,7 @@ wsClient::wsClient() : m_open(false), m_done(false)
     m_client.clear_access_channels(websocketpp::log::alevel::all);
     m_client.set_access_channels(websocketpp::log::alevel::connect);
     m_client.set_access_channels(websocketpp::log::alevel::disconnect);
-    m_client.set_access_channels(websocketpp::log::alevel::app);
+    //m_client.set_access_channels(websocketpp::log::alevel::app);
     // Initialize the Asio transport policy
     m_client.init_asio();
     // Bind the handlers we are using
