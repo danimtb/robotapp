@@ -23,7 +23,7 @@ public:
 	double getOutput();
 	double getOutput(double);
 	double getOutput(double, double);
-
+  double getErrorSum(){return errorSum;};
 private:
 	double clamp(double, double, double);
 	bool bounded(double, double, double);
