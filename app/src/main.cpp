@@ -38,13 +38,16 @@ int main(int argc, char* argv[])
   int max_val = 50;
   std::string uri = "ws://169.254.74.2:8088";
   
-  if (argc >= 7) {
+  if (argc >= 5) {
     Kp = atof(argv[1]);
     Ki = atof(argv[2]);
     Kd = atof(argv[3]);
     max_val = atoi(argv[4]); 
     std::cout << "PID params: Kp=" << Kp << " Ki=" << Ki << " Kd=" << Kd << " MaxVel=" << max_val << std::endl;
-    uri = "ws://" + std::string(argv[5]) + ":" std::string(argv[6]);
+  }
+
+  if (argc >= 7) {
+    uri = "ws://" + std::string(argv[5]) + ":" + std::string(argv[6]);
     std::cout << "connecting to: " << uri << std::endl;
   } 
 
@@ -64,7 +67,7 @@ int main(int argc, char* argv[])
 
   double setpoint = 2500;
   double sensor = 0;
-
+  std::string last_color = "";
   while (true)
   {
     int result = line_sensor.readSensor();
@@ -100,6 +103,13 @@ int main(int argc, char* argv[])
     }
     float r=0, g=0, b=0;
     color_sensor.getRGB(&r, &g, &b);
+
+    //std::string current_color = color_sensor.getColorName();
+    //if (current_color!="red" && last_color=="red") {
+    //  stop_motors();
+    //  std::this_thread::sleep_for (std::chrono::milliseconds(10000));
+    //}
+
     int encoder_left = GPG.get_motor_encoder(MOTOR_LEFT)%360;
     int encoder_right = GPG.get_motor_encoder(MOTOR_RIGHT)%360;
 
@@ -116,6 +126,7 @@ int main(int argc, char* argv[])
     //std::cout << dataStream.str() << std::endl;
     std::cout << pid.getErrorSum() << std::endl;
     client.send_message(dataStream.str());
+
   }
   client.join_thread();
 }
