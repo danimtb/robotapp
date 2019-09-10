@@ -162,6 +162,7 @@ public:
   void enable();
   void disable();
   void sleep();
+  std::string getColor();
 private:
   std::string _device;
   int _file;

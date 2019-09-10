@@ -515,3 +515,45 @@ void ColorSensor::setIntLimits(uint16_t low, uint16_t high)
 	write8(0x06, high & 0xFF);
 	write8(0x07, high >> 8);
 }
+
+std::string ColorSensor::getColor()
+{
+	uint16_t red=3, black=59, white=68, blue=81, yellow=88, green=129;
+	float r, g, b;
+	getRGB(&r, &g, &b);
+	uint16_t lx = calculateLux(uint16_t(r), uint16_t(g), uint16_t(b));
+	std::cout << "LUX: " << lx << std::endl;
+
+	uint16_t margin = 3;
+    std::string color;
+
+	if ((black-margin) <= lx  && lx < (black+margin))
+	{
+	    color = "black";
+	}
+	else if ((red-margin) <= lx && lx < (red+margin))
+	{
+	    color = "red";
+	}
+	else if ((green-margin) <= lx  && lx < (green+margin))
+	{
+		color = "green";
+	}
+	  else if ((yellow-margin) <= lx  && lx < (yellow+margin))
+	{
+		color = "yellow";
+	}
+	else if ((blue-margin) <= lx  && lx < (blue+margin))
+	{
+	    color = "blue";
+	}
+	else if ((white-margin) <= lx  && lx < (white+margin))
+	{
+	    color = "white";
+	}
+	else
+	{
+		color = "kk";
+	}
+	return color;
+}
