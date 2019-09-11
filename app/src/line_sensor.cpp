@@ -12,6 +12,8 @@ LineSensor::LineSensor(std::string device)
     {
         printf("Unable to get bus access to talk to slave\n");
     }
+    for (int i=0;i<6;i++)
+        weights[i]=1.0;
 }
 
 int LineSensor::readSensor()
@@ -75,7 +77,7 @@ unsigned int LineSensor::readLine()
         // only average in values that are above a noise threshold
         if (value > 200)
         {
-            avg += (long)(value) * (i * 1000);
+            avg += (long)(value) * (i * 1000.0 * weights[i]);
             sum += value;
         }
     }
@@ -94,6 +96,19 @@ unsigned int LineSensor::readLine()
     last_value = avg / sum;
 
     return last_value;
+}
+
+void LineSensor::maskLeft() {
+    weights[0] = 0.0;
+}
+
+void LineSensor::maskRight() {
+    weights[5] = 0.0;
+}
+
+void LineSensor::resetMask() {
+    for (int i=0;i<6;i++)
+        weights[i]=1.0;    
 }
 
 char LineSensor::getIntensity(int index)

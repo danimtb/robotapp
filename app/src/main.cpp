@@ -18,6 +18,7 @@
 #include <iterator>
 #include <fstream>
 #include <assert.h>
+#include <chrono>
 
 GoPiGo3 GPG;
 
@@ -32,11 +33,12 @@ void stop_motors()
 
 int main(int argc, char* argv[])
 {
+  // ./bin/robotapp 0.025 0.00001 0.01 75 169.254.39.5 8088
   double Kp = 0.030;
-  double Ki = 0.0;
+  double Ki = 0.0005;
   double Kd = 0.01;
   int max_val = 50;
-  std::string uri = "ws://169.254.74.2:8088";
+  std::string uri = "ws://169.254.253.189:8088";
   
   if (argc >= 5) {
     Kp = atof(argv[1]);
@@ -68,11 +70,13 @@ int main(int argc, char* argv[])
   double setpoint = 2500;
   double sensor = 0;
   std::string last_color = "";
+
+  unsigned int driving_dir = -1;
   while (true)
   {
     int result = line_sensor.readSensor();
     int sensor = line_sensor.readLine();
-
+    std::cout << sensor << std::endl;
     double power_difference = pid.getOutput(sensor, setpoint);
     int motor_left = 0;
     int motor_right = 0;
@@ -92,26 +96,9 @@ int main(int argc, char* argv[])
       motor_right = max_val - power_difference;
     }
 
-    bool bug = false;
-    if (bug) {
-      GPG.set_motor_power(MOTOR_LEFT, 50);
-      GPG.set_motor_power(MOTOR_RIGHT, -50);
-    }
-    else {
-      GPG.set_motor_power(MOTOR_LEFT, motor_left);
-      GPG.set_motor_power(MOTOR_RIGHT, motor_right);
-    }
-    float r=0, g=0, b=0;
-    color_sensor.getRGB(&r, &g, &b);
-
-    //std::string current_color = color_sensor.getColorName();
-    //if (current_color!="red" && last_color=="red") {
-    //  stop_motors();
-    //  std::this_thread::sleep_for (std::chrono::milliseconds(10000));
-    //}
-
     int encoder_left = GPG.get_motor_encoder(MOTOR_LEFT)%360;
     int encoder_right = GPG.get_motor_encoder(MOTOR_RIGHT)%360;
+    std::string current_color=color_sensor.getColor();
 
     std::ostringstream dataStream;
     dataStream << sensor << ";"
@@ -120,12 +107,60 @@ int main(int argc, char* argv[])
               << motor_right << ";"
               << encoder_left << ";"
               << encoder_right << ";"
-              << r << ";"
-              << g << ";"
-              << b;
+              << current_color;
     //std::cout << dataStream.str() << std::endl;
-    std::cout << pid.getErrorSum() << std::endl;
+    //std::cout << pid.getErrorSum() << std::endl;
     client.send_message(dataStream.str());
+
+    if (current_color!=last_color && current_color=="red") {
+      std::cout << "red" << std::endl;
+      stop_motors();
+      std::this_thread::sleep_for(std::chrono::milliseconds(13000));
+    }
+    if (current_color=="unknown" && last_color=="red") {
+      std::cout << "red" << std::endl;
+      driving_dir = 0; // turn right
+      GPG.offset_motor_encoder(MOTOR_LEFT, GPG.get_motor_encoder(MOTOR_LEFT));
+      GPG.offset_motor_encoder(MOTOR_RIGHT, GPG.get_motor_encoder(MOTOR_RIGHT));
+    }
+    if (current_color=="unknown" && last_color=="green") {
+      std::cout << "green" << std::endl;
+      driving_dir = 2; // turn left
+      GPG.offset_motor_encoder(MOTOR_LEFT, GPG.get_motor_encoder(MOTOR_LEFT));
+      GPG.offset_motor_encoder(MOTOR_RIGHT, GPG.get_motor_encoder(MOTOR_RIGHT));
+    }
+    if (current_color=="unknown" && last_color=="cyan") {
+      std::cout << "cyan" << std::endl;
+      driving_dir = 1; // straight
+      GPG.offset_motor_encoder(MOTOR_LEFT, GPG.get_motor_encoder(MOTOR_LEFT));
+      GPG.offset_motor_encoder(MOTOR_RIGHT, GPG.get_motor_encoder(MOTOR_RIGHT));
+    }    
+    //std::cout << GPG.get_motor_encoder(MOTOR_LEFT) << " " << GPG.get_motor_encoder(MOTOR_RIGHT) << std::endl;
+    int path_sum = GPG.get_motor_encoder(MOTOR_LEFT) + GPG.get_motor_encoder(MOTOR_RIGHT);
+    if (path_sum<700 && driving_dir>=0) {
+      std::cout << "path_sum: " << path_sum << std::endl;
+      if (driving_dir==0) {
+        motor_left = max_val;
+        motor_right = max_val/1.8;
+      }      
+      else if (driving_dir==1) {
+        motor_left = max_val;
+        motor_right = max_val;
+      }      
+      else if (driving_dir==2) {
+        motor_left = max_val/1.8;
+        motor_right = max_val;
+      }      
+    }
+    else {
+      driving_dir = -1;
+      line_sensor.resetMask();
+      std::cout << "reset" << std::endl;
+    }
+    std::cout << "motor: " << motor_left << " " << motor_right << std::endl;
+    last_color = current_color;
+    GPG.set_motor_power(MOTOR_LEFT, motor_left);
+    GPG.set_motor_power(MOTOR_RIGHT, motor_right);
 
   }
   client.join_thread();

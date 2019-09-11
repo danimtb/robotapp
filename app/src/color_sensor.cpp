@@ -2,6 +2,9 @@
 #include <math.h>
 #include <iostream>
 
+#define min_f(a, b, c)  (fminf(a, fminf(b, c)))
+#define max_f(a, b, c)  (fmaxf(a, fmaxf(b, c)))
+
 /*!
  *  @brief  Constructor
  *  @param  it
@@ -293,6 +296,38 @@ void ColorSensor::getRGB(float *r, float *g, float *b)
 	*b = (float)blue / sum * 255.0;
 }
 
+// r,g,b values are from 0 to 1
+// h = [0,360], s = [0,1], v = [0,1]
+//		if s == 0, then h = -1 (undefined)
+void ColorSensor::getHSV(float *h, float *s, float *v )
+{
+	float r,g,b;
+	getRGB(&r,&g,&b);
+	r=r/255.0; g=g/255.0; b=b/255.0;
+	float min, max, delta;
+	min = min_f( r, g, b );
+	max = max_f( r, g, b );
+	*v = max;				// v
+	delta = max - min;
+	if( max != 0 )
+		*s = delta / max;		// s
+	else {
+		// r = g = b = 0		// s = 0, v is undefined
+		*s = 0;
+		*h = -1;
+		return;
+	}
+	if( r == max )
+		*h = ( g - b ) / delta;		// between yellow & magenta
+	else if( g == max )
+		*h = 2 + ( b - r ) / delta;	// between cyan & yellow
+	else
+		*h = 4 + ( r - g ) / delta;	// between magenta & cyan
+	*h *= 60;				// degrees
+	if( *h < 0 )
+		*h += 360;
+}
+
 /*!
  *  @brief  Converts the raw R/G/B values to color temperature in degrees Kelvin
  *  @param  r
@@ -518,42 +553,40 @@ void ColorSensor::setIntLimits(uint16_t low, uint16_t high)
 
 std::string ColorSensor::getColor()
 {
-	uint16_t red=3, black=59, white=68, blue=81, yellow=88, green=129;
-	float r, g, b;
-	getRGB(&r, &g, &b);
-	uint16_t lx = calculateLux(uint16_t(r), uint16_t(g), uint16_t(b));
-	std::cout << "LUX: " << lx << std::endl;
-
-	uint16_t margin = 3;
+	uint16_t red=0, yellow=60, green=113, cyan=170, blue=238, pink=300;
+	float h, s, v;
+	getHSV(&h, &s, &v);
+	//std::cout << h << " " << s << " " << v << std::endl;
+	uint16_t margin = 20;
     std::string color;
 
-	if ((black-margin) <= lx  && lx < (black+margin))
-	{
-	    color = "black";
-	}
-	else if ((red-margin) <= lx && lx < (red+margin))
+	if (((360-red-margin) <= h  && h < 360) || (0 <= h && h < (red+margin)) && v>0.55)
 	{
 	    color = "red";
 	}
-	else if ((green-margin) <= lx  && lx < (green+margin))
+	else if ((yellow-margin) <= h && h < (yellow+margin) && s>0.5 && v>0.4)
+	{
+	    color = "yellow";
+	}
+	else if ((green-margin) <= h  && h < (green+margin) && v>0.45)
 	{
 		color = "green";
 	}
-	  else if ((yellow-margin) <= lx  && lx < (yellow+margin))
+	  else if ((cyan-margin) <= h  && h < (cyan+margin) && v>0.35)
 	{
-		color = "yellow";
+		color = "cyan";
 	}
-	else if ((blue-margin) <= lx  && lx < (blue+margin))
+	else if ((blue-margin) <= h  && h < (blue+margin))
 	{
 	    color = "blue";
 	}
-	else if ((white-margin) <= lx  && lx < (white+margin))
+	else if ((pink-margin) <= h  && h < (pink+margin))
 	{
-	    color = "white";
+	    color = "pink";
 	}
 	else
 	{
-		color = "kk";
+		color = "unknown";
 	}
 	return color;
 }

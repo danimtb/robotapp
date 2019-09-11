@@ -24,8 +24,13 @@ public:
 	int getVal(int index) {return read_val[index];};
 	char getIntensity(int index);
 	unsigned int readLine();
+	void maskLeft();
+	void maskRight();
+	void resetMask();
+
 private:
 	int fd;
 	uint16_t read_val[6];
 	std::array<char, 10> intensity_chars_;
+	float weights[6];
 };
