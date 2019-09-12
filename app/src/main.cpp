@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
   unsigned int driving_dir = -1;
   while (true)
   {
-    bug();
+    //bug();
     int result = line_sensor.readSensor();
     int sensor = line_sensor.readLine();
     std::cout << sensor << std::endl;
