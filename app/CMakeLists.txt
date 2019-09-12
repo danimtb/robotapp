@@ -4,5 +4,6 @@ add_executable(robotapp
                src/color_sensor.cpp
                src/mini_pid.cpp
                src/ws_client.cpp)
-               
+
+target_compile_options(robotapp PUBLIC -w)               
 target_link_libraries(robotapp ${CONAN_LIBS})
