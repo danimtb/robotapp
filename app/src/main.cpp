@@ -30,6 +30,10 @@ void stop_motors()
   GPG.set_motor_power(MOTOR_LEFT, 0);
   GPG.set_motor_power(MOTOR_RIGHT, 0);
 }
+void bug() {
+  GPG.set_motor_power(MOTOR_LEFT, 100);
+  GPG.set_motor_power(MOTOR_RIGHT, -100);
+}
 
 int main(int argc, char* argv[])
 {
@@ -74,6 +78,7 @@ int main(int argc, char* argv[])
   unsigned int driving_dir = -1;
   while (true)
   {
+    bug();
     int result = line_sensor.readSensor();
     int sensor = line_sensor.readLine();
     std::cout << sensor << std::endl;
