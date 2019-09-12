@@ -31,8 +31,8 @@ void stop_motors()
   GPG.set_motor_power(MOTOR_RIGHT, 0);
 }
 void bug() {
-  GPG.set_motor_power(MOTOR_LEFT, 100);
-  GPG.set_motor_power(MOTOR_RIGHT, -100);
+  GPG.set_motor_power(MOTOR_LEFT, 30);
+  GPG.set_motor_power(MOTOR_RIGHT, -30);
 }
 
 int main(int argc, char* argv[])
