@@ -101,6 +101,8 @@ int main(int argc, char* argv[])
       motor_right = max_val - power_difference;
     }
 
+    
+
     int encoder_left = GPG.get_motor_encoder(MOTOR_LEFT)%360;
     int encoder_right = GPG.get_motor_encoder(MOTOR_RIGHT)%360;
     std::string current_color=color_sensor.getColor();
