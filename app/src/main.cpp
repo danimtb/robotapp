@@ -23,11 +23,17 @@ int main(int argc, char *argv[]) {
                  robot_params.max_val);
 
   while (true) {
+
     robot_car.ReadSensors();
+
     std::string sensor_data = robot_car.getSensorData();
+
     client.send_message(sensor_data);
+
     robot_car.DriveNormal();
+
     //robot_car.DriveCrazy();
+
   }
   client.join_thread();
 }
