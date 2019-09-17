@@ -32,7 +32,7 @@ public:
     void Init(double kp, double ki, double kd, double max_val);
     void ReadSensors();
     void DriveNormal();
-
+    void UpdateOdometry();
     LineSensor line_sensor;
     ColorSensor color_sensor;
     MiniPID pid;
@@ -51,4 +51,13 @@ private:
     int _encoder_left;
     int _encoder_right;
     double _power_difference;
+    double _robot_wheel_radius;
+    double _wheel_encoder_ticks_per_revolution;
+    int _prev_ticks_left;
+    int _prev_ticks_right;
+    double _prev_x, _prev_y, _prev_theta;
+    double _x, _y, _theta;
+    double _d_center;
+    double _travelled_distance;
+    double _robot_wheel_base_length;
 };

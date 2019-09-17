@@ -11,7 +11,18 @@ RobotCar::RobotCar():_motor_left(0),
                      _last_color(""),
                      _setpoint(2500),
                      _sensor(0),
-                     _driving_dir(-1)                     
+                     _driving_dir(-1),
+                     _robot_wheel_radius(3/100.0),
+                     _robot_wheel_base_length(12/100.0),
+                     _wheel_encoder_ticks_per_revolution(360),
+                     _prev_x(0), 
+                     _prev_y(0), 
+                     _prev_theta(0),
+                     _x(0),
+                     _y(0),
+                     _theta(0),
+                     _d_center(0),
+                     _travelled_distance(0)
 {
 
 }
@@ -93,6 +104,9 @@ void RobotCar::ReadSensors()
 }
 
 void RobotCar::DriveNormal() {
+
+  UpdateOdometry();
+
   if (_current_color != _last_color && _current_color == "green")
     {
       std::cout << "green" << std::endl;
@@ -103,28 +117,21 @@ void RobotCar::DriveNormal() {
     {
       std::cout << "green" << std::endl;
       _driving_dir = 0; // turn right
-      GPG->offset_motor_encoder(MOTOR_LEFT, GPG->get_motor_encoder(MOTOR_LEFT));
-      GPG->offset_motor_encoder(MOTOR_RIGHT, GPG->get_motor_encoder(MOTOR_RIGHT));
     }
     if (_current_color == "unknown" && _last_color == "pink")
     {
       std::cout << "pink" << std::endl;
       _driving_dir = 2; // turn left
-      GPG->offset_motor_encoder(MOTOR_LEFT, GPG->get_motor_encoder(MOTOR_LEFT));
-      GPG->offset_motor_encoder(MOTOR_RIGHT, GPG->get_motor_encoder(MOTOR_RIGHT));
     }
     if (_current_color == "unknown" && _last_color == "orange")
     {
       std::cout << "orange" << std::endl;
       _driving_dir = 1; // straight
-      GPG->offset_motor_encoder(MOTOR_LEFT, GPG->get_motor_encoder(MOTOR_LEFT));
-      GPG->offset_motor_encoder(MOTOR_RIGHT, GPG->get_motor_encoder(MOTOR_RIGHT));
     }
-    //std::cout << GPG->get_motor_encoder(MOTOR_LEFT) << " " << GPG->get_motor_encoder(MOTOR_RIGHT) << std::endl;
-    int path_sum = GPG->get_motor_encoder(MOTOR_LEFT) + GPG->get_motor_encoder(MOTOR_RIGHT);
-    if (path_sum < 500 && _driving_dir >= 0)
+    _travelled_distance = _travelled_distance + _d_center;
+    std::cout << "path_sum: " << _travelled_distance << std::endl;
+    if (_travelled_distance < 0.15 && _driving_dir >= 0)
     {
-      std::cout << "path_sum: " << path_sum << std::endl;
       if (_driving_dir == 0)
       {
         _motor_left = _max_val;
@@ -144,10 +151,8 @@ void RobotCar::DriveNormal() {
     else
     {
       _driving_dir = -1;
-      line_sensor.resetMask();
-      //std::cout << "reset" << std::endl;
+      _travelled_distance = 0;
     }
-    //std::cout << "motor: " << _motor_left << " " << _motor_right << std::endl;
     _last_color = _current_color;
     GPG->set_motor_power(MOTOR_LEFT, _motor_left);
     GPG->set_motor_power(MOTOR_RIGHT, _motor_right);
@@ -155,4 +160,39 @@ void RobotCar::DriveNormal() {
 
 std::string RobotCar::getSensorData() {
     return _sensor_data;
+}
+
+// from https://github.com/nmccrea/sobot-rimulator
+void RobotCar::UpdateOdometry() {
+    const double PI = 3.141592653589793;
+
+    double R = _robot_wheel_radius;
+    int N = _wheel_encoder_ticks_per_revolution;
+
+    // read the wheel encoder values
+    int ticks_left = GPG->get_motor_encoder(MOTOR_LEFT);
+    int ticks_right = GPG->get_motor_encoder(MOTOR_RIGHT);
+
+    // get the difference in ticks since the last iteration
+    double d_ticks_left = ticks_left - _prev_ticks_left;
+    double d_ticks_right = ticks_right - _prev_ticks_right;
+    
+    // estimate the wheel movements
+    double d_left_wheel = 2.0*PI*R*( d_ticks_left / N );
+    double d_right_wheel = 2.0*PI*R*( d_ticks_right / N );
+    _d_center = 0.5 * ( d_left_wheel + d_right_wheel );
+
+    // calculate the new pose
+    _x = _prev_x + ( _d_center * cos( _prev_theta ) );
+    _y = _prev_y + ( _d_center * sin( _prev_theta ) );
+    _theta = _prev_theta + ( ( d_right_wheel - d_left_wheel ) / _robot_wheel_base_length );
+
+    // update the pose estimate with the new values
+    _prev_x = _x;
+    _prev_y = _y;
+    _prev_theta = _theta;
+
+    // save the current tick count for the next iteration
+    _prev_ticks_left = ticks_left;
+    _prev_ticks_right = ticks_right;
 }
