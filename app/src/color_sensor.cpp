@@ -1,6 +1,7 @@
 #include "color_sensor.hpp"
 #include <math.h>
 #include <iostream>
+#include <linux/i2c-dev.h>
 
 #define min_f(a, b, c)  (fminf(a, fminf(b, c)))
 #define max_f(a, b, c)  (fmaxf(a, fmaxf(b, c)))
@@ -12,13 +13,12 @@
  *  @param  gain
  *          Gain
  */
-ColorSensor::ColorSensor(std::string device, tcs34725IntegrationTime_t it,
-						 tcs34725Gain_t gain)
+ColorSensor::ColorSensor(): _device("/dev/i2c-1"), 
+  							_tcs34725IntegrationTime(TCS34725_INTEGRATIONTIME_50MS),
+							_tcs34725Gain(TCS34725_GAIN_16X)
 {
-	_device = device;
 	_tcs34725Initialised = false;
-	_tcs34725IntegrationTime = it;
-	_tcs34725Gain = gain;
+	begin();
 }
 
 /*!

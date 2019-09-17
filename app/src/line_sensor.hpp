@@ -11,14 +11,12 @@
 #include <stdexcept>
 #include <errno.h>
 #include <string.h>
-#include <linux/i2c-dev.h>
 
 
 class LineSensor
 {
 public:
-	LineSensor() = delete;
-	LineSensor(std::string device);
+	LineSensor();
 	~LineSensor () = default;
 	int readSensor();
 	int getVal(int index) {return read_val[index];};

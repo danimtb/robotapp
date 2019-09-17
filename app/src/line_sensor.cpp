@@ -1,8 +1,10 @@
 #include "line_sensor.hpp"
 #include <iostream>
+#include <linux/i2c-dev.h>
 
-LineSensor::LineSensor(std::string device)
+LineSensor::LineSensor()
 {
+    std::string device = "/dev/i2c-1";
     intensity_chars_ = {' ', '.', ':', '-', '=', '+', '*', '#', '%', '@'};
     if ((fd = open(device.c_str(), O_RDWR)) < 0)
     {

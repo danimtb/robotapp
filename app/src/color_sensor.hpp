@@ -11,7 +11,6 @@
 #include <stdexcept>
 #include <errno.h>
 #include <string.h>
-#include <linux/i2c-dev.h>
 
 #define TCS34725_ADDRESS (0x29)     /**< I2C address **/
 #define TCS34725_COMMAND_BIT (0x80) /**< Command bit **/
@@ -137,8 +136,9 @@ typedef enum {
 
 class ColorSensor {
 public:
-  ColorSensor(std::string device, tcs34725IntegrationTime_t = TCS34725_INTEGRATIONTIME_2_4MS,
-                    tcs34725Gain_t = TCS34725_GAIN_1X);
+  //ColorSensor(std::string device, tcs34725IntegrationTime_t = TCS34725_INTEGRATIONTIME_2_4MS,
+  //                  tcs34725Gain_t = TCS34725_GAIN_1X);
+  ColorSensor();
 
   bool begin(uint8_t addr);
   bool begin();

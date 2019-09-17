@@ -9,14 +9,17 @@
 
 #include "mini_pid.hpp"
 
+MiniPID::MiniPID() {
+
+}
 //**********************************
 //Constructor functions
 //**********************************
-MiniPID::MiniPID(double p, double i, double d){
+void MiniPID::InitPID(double p, double i, double d){
 	init();
 	P=p; I=i; D=d;
 }
-MiniPID::MiniPID(double p, double i, double d, double f){
+void MiniPID::InitPID(double p, double i, double d, double f){
 	init();
 	P=p; I=i; D=d; F=f;
 }
