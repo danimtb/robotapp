@@ -553,40 +553,22 @@ void ColorSensor::setIntLimits(uint16_t low, uint16_t high)
 
 std::string ColorSensor::getColor()
 {
-	uint16_t red=0, yellow=60, green=113, cyan=170, blue=238, pink=300;
+	//uint16_t red=0, yellow=60, green=113, cyan=170, blue=238, pink=300;
 	float h, s, v;
 	getHSV(&h, &s, &v);
 	//std::cout << h << " " << s << " " << v << std::endl;
-	uint16_t margin = 20;
-    std::string color;
-
-	if (((360-red-margin) <= h  && h < 360) || (0 <= h && h < (red+margin)) && v>0.55)
-	{
-	    color = "red";
+	hsv orange(7, 0.83, 0.69,"orange");
+	hsv green(116,0.61,0.53,"green");
+	hsv pink(348,0.81,0.68,"pink");
+	hsv current_color(h,s,v,"");
+	if (current_color.almost_equal(orange)) {
+		return orange.name;
 	}
-	else if ((yellow-margin) <= h && h < (yellow+margin) && s>0.5 && v>0.4)
-	{
-	    color = "yellow";
+	else if (current_color.almost_equal(pink)) {
+		return pink.name;
 	}
-	else if ((green-margin) <= h  && h < (green+margin) && v>0.45)
-	{
-		color = "green";
+	else if (current_color.almost_equal(green)) {
+		return green.name;
 	}
-	  else if ((cyan-margin) <= h  && h < (cyan+margin) && v>0.35)
-	{
-		color = "cyan";
-	}
-	else if ((blue-margin) <= h  && h < (blue+margin))
-	{
-	    color = "blue";
-	}
-	else if ((pink-margin) <= h  && h < (pink+margin))
-	{
-	    color = "pink";
-	}
-	else
-	{
-		color = "unknown";
-	}
-	return color;
+	return "unknown";
 }

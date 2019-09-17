@@ -46,6 +46,9 @@ private:
     unsigned int _driving_dir;
     std::string _sensor_data;
     double _max_val;
-    int _motor_left = 0;
-    int _motor_right = 0;    
+    int _motor_left;
+    int _motor_right;    
+    int _encoder_left;
+    int _encoder_right;
+    double _power_difference;
 };

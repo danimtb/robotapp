@@ -5,7 +5,7 @@ void wait_a_bit()
 #ifdef WIN32
     Sleep(1000);
 #else
-    sleep(1);
+    sleep(0.1);
 #endif
 }
 

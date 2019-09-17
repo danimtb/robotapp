@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <errno.h>
 #include <string.h>
+#include <math.h>
 
 #define TCS34725_ADDRESS (0x29)     /**< I2C address **/
 #define TCS34725_COMMAND_BIT (0x80) /**< Command bit **/
@@ -131,6 +132,24 @@ typedef enum {
   TCS34725_GAIN_16X = 0x02, /**<  16x gain */
   TCS34725_GAIN_60X = 0x03  /**<  60x gain */
 } tcs34725Gain_t;
+
+class hsv {
+public:
+  hsv(double h, double s,double v, std::string name):h(h),s(s),v(v),name(name){};
+  double h;
+  double s;
+  double v;
+  std::string name;
+  bool almost_equal(const hsv& color) {
+    double marginh = 5;
+    double marginsv = 0.2;
+    double angle = fabs(color.h - h)>180 ? fabs(360-(color.h-h)) : fabs(color.h - h);
+    if (angle<marginh && fabs(color.s-s)<marginsv && fabs(color.v-v)<marginsv) {
+      return true;
+    }
+    return false;
+  };
+};
 
 // code from https://github.com/adafruit/Adafruit_TCS34725
 
