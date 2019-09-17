@@ -93,13 +93,12 @@ void RobotCar::ReadSensors()
     _current_color = color_sensor.getColor();
     //std::cout << _current_color << std::endl;
     std::ostringstream dataStream;
-    dataStream << _sensor << ";"
-               << _power_difference << ";"
-               << _motor_left << ";"
-               << _motor_right << ";"
-               << _encoder_left << ";"
-               << _encoder_right << ";"
+
+    dataStream << _x << ";"
+               << _y << ";"
+               << _theta << ";"
                << _current_color;
+               
     _sensor_data = dataStream.str();
 }
 
