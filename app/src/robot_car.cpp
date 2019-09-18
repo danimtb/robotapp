@@ -1,5 +1,7 @@
 #include "robot_car.hpp"
 #include <sstream>
+#include <algorithm>
+#include <math.h>
 #include <GoPiGo3.h>
 
 RobotCar::RobotCar():_motor_left(0),
@@ -31,7 +33,7 @@ RobotCar::~RobotCar() {
 
 void RobotCar::Init(double kp, double ki, double kd, double max_val)
 {
-    _max_val = max_val; 
+    _max_val = std::max(max_val, 100.0); 
     GPG = std::make_unique<GoPiGo3>();
     GPG->detect();
     GPG->offset_motor_encoder(MOTOR_LEFT, GPG->get_motor_encoder(MOTOR_LEFT));
@@ -135,7 +137,7 @@ int RobotCar::DriveNormal() {
     _travelled_distance = _travelled_distance + _d_center;
     _total_travelled_distance = _total_travelled_distance + _d_center;
     //std::cout << "path_sum: " << _travelled_distance << " driving dir: " << _driving_dir << std::endl;
-    if (_travelled_distance < 0.15 && _driving_dir >= 0)
+    if (fabs(_travelled_distance) < 0.15 && _driving_dir >= 0)
     {
       std::cout << "path_sum: " << _travelled_distance << " driving dir: " << _driving_dir << std::endl;
       if (_driving_dir == 0)
@@ -145,7 +147,7 @@ int RobotCar::DriveNormal() {
       }
       else if (_driving_dir == 1)
       {
-        _motor_left = _max_val;
+        _motor_left = _max_val/1.1;
         _motor_right = _max_val;
       }
       else if (_driving_dir == 2)
@@ -160,6 +162,11 @@ int RobotCar::DriveNormal() {
       _travelled_distance = 0;
     }
     _last_color = _current_color;
+    // brake a little bit when reaching the end
+    if (_total_travelled_distance>3.9 && _total_travelled_distance<4.15) {
+        _motor_left = std::max(_motor_left*2.0*fabs(4.15-_total_travelled_distance),_motor_left/1.8);
+        _motor_right = std::max(_motor_right*2.0*fabs(4.15-_total_travelled_distance),_motor_right/1.8);
+    }
     GPG->set_motor_power(MOTOR_LEFT, _motor_left);
     GPG->set_motor_power(MOTOR_RIGHT, _motor_right);
     return 1;

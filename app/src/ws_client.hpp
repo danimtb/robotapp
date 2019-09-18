@@ -27,4 +27,6 @@ private:
     websocketpp::lib::mutex m_lock;
     bool m_open;
     bool m_done;
+    std::chrono::steady_clock::time_point _start;
+    std::chrono::steady_clock::time_point _end;
 };

@@ -24,6 +24,8 @@ wsClient::wsClient() : m_open(false), m_done(false)
     m_client.set_open_handler(bind(&wsClient::on_open, this, _1));
     m_client.set_close_handler(bind(&wsClient::on_close, this, _1));
     m_client.set_fail_handler(bind(&wsClient::on_fail, this, _1));
+    _start = std::chrono::steady_clock::now();
+    _end = std::chrono::steady_clock::now();
 }
 
 // This method will block until the connection is complete
@@ -53,45 +55,55 @@ void wsClient::join_thread() {
 
 int wsClient::send_message(const std::string &strmessage)
 {
-    uint64_t count = 0;
-    std::stringstream val;
-    websocketpp::lib::error_code ec;
-    bool wait = false;
+    const int interval = 33;
+    //if (std::chrono::duration_cast<std::chrono::milliseconds>(_end - _start).count()>interval) 
     {
-        scoped_lock guard(m_lock);
-        // If the connection has been closed, stop generating telemetry
-        if (m_done)
+        uint64_t count = 0;
+        std::stringstream val;
+        websocketpp::lib::error_code ec;
+        bool wait = false;
         {
+            scoped_lock guard(m_lock);
+            // If the connection has been closed, stop generating telemetry
+            if (m_done)
+            {
+                return 0;
+            }
+
+            // If the connection hasn't been opened yet wait a bit and retry
+            if (!m_open)
+            {
+                wait = true;
+            }
+        }
+        if (wait)
+        {
+            wait_a_bit();
+            _start = std::chrono::steady_clock::now();
             return 0;
         }
-
-        // If the connection hasn't been opened yet wait a bit and retry
-        if (!m_open)
+        val.str("");
+        val << strmessage;
+        m_client.get_alog().write(websocketpp::log::alevel::app, val.str());
+        m_client.send(m_hdl, val.str(), websocketpp::frame::opcode::text, ec);
+        // The most likely error that we will get is that the connection is
+        // not in the right state. Usually this means we tried to send a
+        // message to a connection that was closed or in the process of
+        // closing. While many errors here can be easily recovered from,
+        // in this simple example, we'll stop the telemetry loop.
+        if (ec)
         {
-            wait = true;
+            m_client.get_alog().write(websocketpp::log::alevel::app,
+                                    "Send Error: " + ec.message());
+            _start = std::chrono::steady_clock::now();
+            return 0;
         }
-    }
-    if (wait)
-    {
-        wait_a_bit();
+        _start = std::chrono::steady_clock::now();
         return 0;
     }
-    val.str("");
-    val << strmessage;
-    m_client.get_alog().write(websocketpp::log::alevel::app, val.str());
-    m_client.send(m_hdl, val.str(), websocketpp::frame::opcode::text, ec);
-    // The most likely error that we will get is that the connection is
-    // not in the right state. Usually this means we tried to send a
-    // message to a connection that was closed or in the process of
-    // closing. While many errors here can be easily recovered from,
-    // in this simple example, we'll stop the telemetry loop.
-    if (ec)
-    {
-        m_client.get_alog().write(websocketpp::log::alevel::app,
-                                  "Send Error: " + ec.message());
-        return 0;
-    }
-    return 0;
+    //else {
+    //    _end = std::chrono::steady_clock::now();
+    //}
 }
 
 // The open handler will signal that we are ready to start sending telemetry
