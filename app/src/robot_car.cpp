@@ -134,7 +134,7 @@ int RobotCar::DriveNormal() {
     _travelled_distance = _travelled_distance + _d_center;
     _total_travelled_distance = _total_travelled_distance + _d_center;
     //std::cout << "path_sum: " << _travelled_distance << " driving dir: " << _driving_dir << std::endl;
-    if (_travelled_distance < 0.15 && _driving_dir >= 0)
+    if (_travelled_distance < 0.12 && _driving_dir >= 0)
     {
       std::cout << "path_sum: " << _travelled_distance << " driving dir: " << _driving_dir << std::endl;
       if (_driving_dir == 0)
