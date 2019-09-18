@@ -109,6 +109,7 @@ int RobotCar::DriveNormal() {
       Stop();
       std::this_thread::sleep_for(std::chrono::milliseconds(10000));
       _travelled_distance = 0;
+      _last_color = _current_color;
       return 0;
     }
     if (_current_color == "unknown" && _last_color == "green")
