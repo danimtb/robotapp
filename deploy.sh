@@ -1,6 +1,6 @@
 #!/bin/bash
 
-URL_TGZ="https://art-yalla.jfrog-lab.com/artifactory/conan-repo/_/robotapp/0.1/_/0/package/fb6b4d27890a0ab29e0cb57c5a10dbabe80b37fc/0/conan_package.tgz"
+URL_TGZ="https://art-yalla.jfrog-lab.com/artifactory/conan-repo/_/robotapp/0.1/_/0/package/2ee0aea63e74b4d1932fd84a96052f38be8f7900/0/conan_package.tgz"
 APP_PATH="bin/robotapp"
 
 parent_folder=$(pwd)
@@ -28,7 +28,6 @@ run_check_directory()
 read_binary_content ()
 {
     folder=$1
-    #echo "folder: $folder"
     md5=$(md5sum "$folder/$APP_PATH")
     app_md5="${md5%% *}"
 }
@@ -63,10 +62,9 @@ do
         echo "$deploy_content"
 
         if [ "$deploy_content" != "$new_deploy_content" ]; then
-            echo "KIIIIIIIIIIIIIIIIIIIILLLLL"
+            echo "KILL"
             kill -TERM $app_pid
             check=0
         fi
-        #echo $check
     done
 done
