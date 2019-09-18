@@ -14,7 +14,7 @@ class RobotAppConan(ConanFile):
     keep_imports = True
 
     def imports(self):
-        self.copy("*")
+        self.copy("*.so")
 
     def build(self):
         cmake = CMake(self)
