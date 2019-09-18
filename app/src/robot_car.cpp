@@ -20,7 +20,8 @@ RobotCar::RobotCar():_motor_left(0),
                      _y(0),
                      _theta(0),
                      _d_center(0),
-                     _travelled_distance(0)
+                     _travelled_distance(0),
+                     _total_travelled_distance(0)
 {
 }
 
@@ -92,12 +93,13 @@ void RobotCar::ReadSensors()
     dataStream << _x << ";"
                << _y << ";"
                << _theta << ";"
-               << _current_color;
+               << _current_color << ";" 
+               << _total_travelled_distance;
 
     _sensor_data = dataStream.str();
 }
 
-void RobotCar::DriveNormal() {
+int RobotCar::DriveNormal() {
 
   UpdateOdometry();
 
@@ -106,26 +108,34 @@ void RobotCar::DriveNormal() {
       std::cout << "green" << std::endl;
       Stop();
       std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+      _travelled_distance = 0;
+      return 0;
     }
     if (_current_color == "unknown" && _last_color == "green")
     {
       std::cout << "green" << std::endl;
       _driving_dir = 0; // turn right
-    }
-    if (_current_color == "unknown" && _last_color == "pink")
-    {
-      std::cout << "pink" << std::endl;
-      _driving_dir = 2; // turn left
+      _travelled_distance = 0;
+      _last_color = _current_color;
     }
     if (_current_color == "unknown" && _last_color == "orange")
     {
       std::cout << "orange" << std::endl;
+      _driving_dir = 2; // turn left
+      _travelled_distance = 0;
+    }
+    if (_current_color == "unknown" && _last_color == "pink")
+    {
+      std::cout << "pink" << std::endl;
       _driving_dir = 1; // straight
+      _travelled_distance = 0;
     }
     _travelled_distance = _travelled_distance + _d_center;
+    _total_travelled_distance = _total_travelled_distance + _d_center;
     //std::cout << "path_sum: " << _travelled_distance << " driving dir: " << _driving_dir << std::endl;
     if (_travelled_distance < 0.15 && _driving_dir >= 0)
     {
+      std::cout << "path_sum: " << _travelled_distance << " driving dir: " << _driving_dir << std::endl;
       if (_driving_dir == 0)
       {
         _motor_left = _max_val;
@@ -150,6 +160,7 @@ void RobotCar::DriveNormal() {
     _last_color = _current_color;
     GPG->set_motor_power(MOTOR_LEFT, _motor_left);
     GPG->set_motor_power(MOTOR_RIGHT, _motor_right);
+    return 1;
 }
 
 std::string RobotCar::getSensorData() {
