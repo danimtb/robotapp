@@ -140,7 +140,7 @@ int RobotCar::DriveNormal() {
       if (_driving_dir == 0)
       {
         _motor_left = _max_val;
-        _motor_right = _max_val / 1.5;
+        _motor_right = _max_val / 1.3;
       }
       else if (_driving_dir == 1)
       {
