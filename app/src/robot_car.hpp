@@ -31,7 +31,7 @@ public:
     void DriveCrazy();
     void Init(double kp, double ki, double kd, double max_val);
     void ReadSensors();
-    void DriveNormal();
+    int DriveNormal();
     void UpdateOdometry();
     LineSensor line_sensor;
     ColorSensor color_sensor;
@@ -57,5 +57,6 @@ private:
     double _x, _y, _theta;
     double _d_center;
     double _travelled_distance;
+    double _total_travelled_distance;
     double _robot_wheel_base_length;
 };
