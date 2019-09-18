@@ -1,14 +1,14 @@
 [settings]
-# We are building in Windows 64 bits
+# We are building in Linux 64 bits
 os_build=Linux
-arch_build=armv8
+arch_build=x86_64
 
 # We are cross building to RPI (Linux), ARMv7
 os=Linux
 arch=armv7hf
-compiler=gcc
+build_type=Release
 
-# Adjust to the gcc version
+# Adjust the gcc version
+compiler=gcc
 compiler.version=8
 compiler.libcxx=libstdc++11
-build_type=Release
