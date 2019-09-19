@@ -37,6 +37,18 @@ public:
     ColorSensor color_sensor;
     MiniPID pid;
     std::string getSensorData();
+    bool EnterGreen();
+    bool ExitGreen();
+    bool EnterPink();
+    bool ExitPink();
+    bool EnterOrange();
+    bool ExitOrange();
+    int Update();
+    void StopForSeconds(int seconds);
+    void TurnRight();
+    void TurnLeft();
+    void DriveStraight();
+
 private:
     std::unique_ptr<GoPiGo3> GPG;
     double _setpoint;
