@@ -58,15 +58,17 @@ void RobotCar::Reset()
 
 void RobotCar::DriveCrazy()
 {
-  GPG->set_motor_power(MOTOR_LEFT, 30);
-  GPG->set_motor_power(MOTOR_RIGHT, -30);
-  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-  GPG->set_motor_power(MOTOR_LEFT, 30);
-  GPG->set_motor_power(MOTOR_RIGHT, 30);
-  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-  GPG->set_motor_power(MOTOR_LEFT, -30);
-  GPG->set_motor_power(MOTOR_RIGHT, -30);
-  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  for (int i=0;i<4;i++) {
+    GPG->set_motor_power(MOTOR_LEFT, 50);
+    GPG->set_motor_power(MOTOR_RIGHT, -50);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    GPG->set_motor_power(MOTOR_LEFT, 50);
+    GPG->set_motor_power(MOTOR_RIGHT, 50);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    GPG->set_motor_power(MOTOR_LEFT, -50);
+    GPG->set_motor_power(MOTOR_RIGHT, -50);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  }
 }
 
 void RobotCar::ReadSensors()
