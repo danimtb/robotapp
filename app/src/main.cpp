@@ -34,6 +34,8 @@ int main(int argc, char *argv[])
 
     robot_car.UpdateOdometry();
 
+    robot_car.DriveCrazy();
+
     if (robot_car.EnterGreen())
     {
       robot_car.StopForSeconds(10);
