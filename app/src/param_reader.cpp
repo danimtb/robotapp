@@ -4,7 +4,7 @@
 RobotCarParams::RobotCarParams(int argc, char *argv[]): Kp(0.030), 
                                                         Ki(0.0005), 
                                                         Kd(0.025), 
-                                                        max_val(75), 
+                                                        max_val(100), 
                                                         uri("ws://192.168.0.55:8088")
 {
     //./bin/robotapp 0.030 0.0005 0.025 100 http://169.254.223.91 8088
