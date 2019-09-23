@@ -9,7 +9,7 @@ void exit_signal_handler(int signo);
 
 int main(int argc, char *argv[])
 {
-  
+      
   signal(SIGINT, exit_signal_handler);
 
   RobotCarParams robot_params(argc, argv);
