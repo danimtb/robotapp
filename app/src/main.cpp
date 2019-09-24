@@ -49,8 +49,7 @@ int main(int argc, char *argv[])
     }
     if (robot_car.EnterPink())
     {
-      //robot_car.DriveStraight();
-      robot_car.TurnRight();
+      robot_car.DriveStraight();
     }
     robot_car.Update();
 
