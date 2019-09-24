@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
     }
     robot_car.Update();
 
-    //robot_car.DriveCrazy();
+    robot_car.DriveCrazy();
   }
   client.join_thread();
 }
