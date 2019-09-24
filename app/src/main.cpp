@@ -45,8 +45,8 @@ int main(int argc, char *argv[])
     }
     if (robot_car.EnterOrange())
     {
-      robot_car.TurnLeft();
-      //robot_car.DriveStraight();
+      //robot_car.TurnLeft();
+      robot_car.DriveStraight();
     }
     if (robot_car.EnterPink())
     {
